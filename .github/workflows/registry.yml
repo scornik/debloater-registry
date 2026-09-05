@@ -35,6 +35,13 @@ jobs:
       - name: Every document parses, and the manifest describes what is here
         run: node tests/integrity.mjs
 
+      # The manifest's hashes are what a site checks each file against, so an
+      # edited manifest carrying an old signature would be a way to hand a site
+      # any file at all. Editing it without re-signing fails here rather than
+      # on somebody's install.
+      - name: The committed signature is this manifest's
+        run: node tests/signature.mjs
+
       # A release is identified by its tag, and the manifest carries the tag it
       # was generated for. If a tag is pushed that the manifest does not name,
       # a site would report a version it is not running.

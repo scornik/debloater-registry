@@ -26,9 +26,18 @@ during normal operation, and a site with no outbound access is not missing
 anything.
 
 Fetching a newer registry is optional, off by default, and reached only by
-running a WP-CLI command. Downloaded registries are refused unless signed, and
-signing is not yet enabled — until a key is published, the vendored snapshot is
-the only registry any site will load.
+running a WP-CLI command. Downloaded registries are refused unless signed.
+
+Releases are signed now. `manifest.sig` is a detached Ed25519 signature over
+`manifest.json`, made with a private key held offline; the public half is
+compiled into the plugin. CI verifies the committed signature on every push, so
+a manifest edited without re-signing fails here. Verify it yourself with:
+
+```
+openssl pkeyutl -verify -rawin -pubin -inkey registry-signing.pub     -in manifest.json -sigfile manifest.sig
+```
+
+or `node tests/signature.mjs`, which needs nothing installed.
 
 ## Versions
 

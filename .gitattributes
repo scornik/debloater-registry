@@ -12,3 +12,7 @@
 *.md text eol=lf
 *.mjs text eol=lf
 *.yml text eol=lf
+
+# A detached Ed25519 signature is 64 bytes of binary. Line-ending conversion
+# would change its length and its content, and it would then verify nowhere.
+*.sig binary
