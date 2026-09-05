@@ -1,0 +1,6 @@
+{
+  "subject": "plugin:woocommerce",
+  "requires": ["heartbeat", "jquery", "rest:auth"],
+  "notes": "WooCommerce uses Heartbeat to keep the checkout session alive and to detect a cart changed in another tab, relies on jQuery throughout the front end, and uses the authenticated REST API for the admin analytics screens.",
+  "confidence": 0.97
+}

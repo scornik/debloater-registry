@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://debloater.hakeemify.com/schemas/plugin-categories.schema.json",
+  "title": "Plugin category map",
+  "description": "One table, not one document per object: which functional category each known plugin slug belongs to, so the analyzer can notice that a site is running two of the same kind of thing. Membership is a statement about what a plugin is for, never about whether it should be there. Nothing in this file names a tweak or implies an action.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["categories", "plugins"],
+  "properties": {
+    "categories": {
+      "description": "The functional categories, keyed by id. A category exists here before any plugin may claim it.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label"],
+        "properties": {
+          "label": {
+            "description": "What this category is called in the interface. A name, not a judgement: what running two of these costs is reasoning, and reasoning belongs to the analyzer.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        }
+      }
+    },
+    "plugins": {
+      "description": "Plugin directory slug to category id. The slug is the first path segment of a plugin file, e.g. \"wordpress-seo\" for wordpress-seo/wp-seo.php.",
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+      }
+    }
+  }
+}

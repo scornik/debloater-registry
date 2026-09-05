@@ -1,0 +1,9 @@
+{
+  "id": "litespeed-cache",
+  "title": "LiteSpeed Cache",
+  "match": {
+    "plugin_file": "litespeed-cache/litespeed-cache.php",
+    "constant": "LSCWP_V"
+  },
+  "sets": { "plugins.detected.litespeed-cache": true }
+}

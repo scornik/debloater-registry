@@ -1,0 +1,499 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://debloater.hakeemify.com/schemas/fact.schema.json",
+  "title": "FactSet",
+  "description": "One JSON document per scan run. Keys are dot-namespaced; each scanner owns a namespace and may only write into it. Values are scalars, lists, or flat maps. Facts carry no opinions. Unknown keys are rejected: a scanner that wants a new key adds it to this schema in the same change.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "env.wp_version": {
+      "description": "WordPress version string.",
+      "type": "string",
+      "minLength": 1
+    },
+    "env.php_version": {
+      "description": "PHP version string.",
+      "type": "string",
+      "minLength": 1
+    },
+    "env.host_vendor": {
+      "description": "Recognised hosting vendor, or unknown when no signature matched.",
+      "type": "string",
+      "enum": ["litespeed", "siteground", "kinsta", "wpengine", "unknown"]
+    },
+    "env.cache_plugin": {
+      "description": "Active page-cache plugin, or none.",
+      "type": "string",
+      "enum": ["litespeed-cache", "wp-rocket", "wp-super-cache", "w3-total-cache", "none"]
+    },
+    "env.is_multisite": {
+      "description": "Whether this is a multisite install.",
+      "type": "boolean"
+    },
+
+    "wp.heartbeat_interval": {
+      "description": "Heartbeat polling interval in seconds.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "wp.xmlrpc_enabled": { "type": "boolean" },
+    "wp.emojis_enabled": { "type": "boolean" },
+    "wp.embeds_enabled": { "type": "boolean" },
+    "wp.rss_enabled": { "type": "boolean" },
+    "wp.generator_tag": { "type": "boolean" },
+    "wp.rsd_link": { "type": "boolean" },
+    "wp.shortlink": { "type": "boolean" },
+    "wp.self_pingbacks": { "type": "boolean" },
+    "wp.dashicons_frontend": { "type": "boolean" },
+    "wp.jquery_migrate": { "type": "boolean" },
+    "wp.revisions_limit": {
+      "description": "WP_POST_REVISIONS: -1 for unlimited, 0 to disable, otherwise the cap.",
+      "type": "integer",
+      "minimum": -1
+    },
+    "wp.file_editor_enabled": { "type": "boolean" },
+    "wp.debug": { "type": "boolean" },
+
+    "users.admin_count": {
+      "description": "Number of users with the administrator role.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "users.recent_editors_7d": {
+      "description": "Users who edited content in the last seven days.",
+      "type": "integer",
+      "minimum": 0
+    },
+
+    "plugins.active": {
+      "description": "Active plugin files, e.g. woocommerce/woocommerce.php.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "plugins.inactive": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "plugins.meta": {
+      "description": "Per-plugin metadata keyed by plugin file.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": { "type": "string" },
+          "name": { "type": "string" },
+          "last_updated": {
+            "description": "Only present once the user has opted in to the wp.org update check (Phase 11). Absent means it was not looked up, never that the plugin was never updated.",
+            "type": ["string", "null"]
+          },
+          "file_mtime": {
+            "description": "Unix time the plugin's main file was last written on this server. A local fact, not a release date: a copy-based migration resets it, and an upstream release the site never installed does not change it. Null when the file could not be read.",
+            "type": ["integer", "null"],
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "plugins.detected": {
+      "description": "Detector results keyed by detector id.",
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+      "additionalProperties": { "type": "boolean" }
+    },
+    "plugins.categories": {
+      "description": "One row per active plugin the registry classifies: which functional category it is in, and what that category is called. Rows rather than nested groups because a fact value nests exactly one level, and because this is a small relation the rules group for themselves. A label and nothing more: what running two of a kind costs is reasoning, and reasoning belongs to the analyzer. Plugins nobody has classified are absent, which says nothing about them.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["plugin", "category", "label"],
+        "properties": {
+          "plugin": { "type": "string", "minLength": 1 },
+          "category": { "type": "string", "minLength": 1 },
+          "label": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "plugins.update_source": {
+      "description": "Where the staleness reading came from on this scan. \"wp_org\" means the user opted in and release dates were looked up; \"file_mtime\" means nothing left the server and the reading is the weaker local one.",
+      "type": "string",
+      "enum": ["wp_org", "file_mtime"]
+    },
+    "plugins.host_optimizers": {
+      "description": "One row per optimizer present on the site and finding it offers its own setting for, so a finding can say where else it can be changed. Identifiers only — where in that product the setting lives is registry knowledge, and the analyzer looks it up there. Presence is not a claim that the other tool has done anything: a finding fires because the scan observed the thing still happening.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "finding"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "finding": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+
+    "theme.active": { "type": "string", "minLength": 1 },
+    "theme.parent": { "type": ["string", "null"] },
+
+    "db.size_bytes": { "type": "integer", "minimum": 0 },
+    "db.revisions.count": { "type": "integer", "minimum": 0 },
+    "db.autodrafts.count": { "type": "integer", "minimum": 0 },
+    "db.trash.count": { "type": "integer", "minimum": 0 },
+    "db.spam_comments.count": { "type": "integer", "minimum": 0 },
+    "db.transients.count": { "type": "integer", "minimum": 0 },
+    "db.transients.expired": { "type": "integer", "minimum": 0 },
+    "db.orphan_postmeta.count": { "type": "integer", "minimum": 0 },
+    "db.orphan_termmeta.count": { "type": "integer", "minimum": 0 },
+    "db.orphan_usermeta.count": { "type": "integer", "minimum": 0 },
+    "db.autoload.bytes": { "type": "integer", "minimum": 0 },
+    "db.autoload.top": {
+      "description": "Largest autoloaded options, largest first.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "bytes"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "bytes": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+
+    "cron.events.count": { "type": "integer", "minimum": 0 },
+    "cron.events.subminute": {
+      "description": "Scheduled events recurring more often than once a minute.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["hook", "interval"],
+        "properties": {
+          "hook": { "type": "string", "minLength": 1 },
+          "interval": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "cron.orphans.count": { "type": "integer", "minimum": 0 },
+    "cron.disable_wp_cron": { "type": "boolean" },
+
+    "admin.notices.count": { "type": "integer", "minimum": 0 },
+    "admin.notices": {
+      "description": "One row per admin-notice callback: the hook it is on, and who registered it. A callback is not a visible notice — plenty check a condition and print nothing — so this counts the things that will run to decide. Source is \"unknown\" when the owner could not be established, which is a real answer and never a guess.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["hook", "source"],
+        "properties": {
+          "hook": { "type": "string", "minLength": 1 },
+          "source": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "admin.dashboard_widgets.count": { "type": "integer", "minimum": 0 },
+    "admin.dashboard_widgets": {
+      "description": "One row per registered dashboard widget, with who registered it.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "source"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "source": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "admin.menu_items.count": { "type": "integer", "minimum": 0 },
+    "admin.menu_items": {
+      "description": "One row per top-level admin menu item, with who registered it. Separators are excluded: they are entries in the data structure but not things anyone can click.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["slug", "source"],
+        "properties": {
+          "slug": { "type": "string" },
+          "source": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "admin.scripts.count": { "type": "integer", "minimum": 0 },
+    "admin.scripts": {
+      "description": "One row per script enqueued on the admin screen the scan ran from, with who it belongs to. One screen, not the whole admin.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["handle", "source"],
+        "properties": {
+          "handle": { "type": "string", "minLength": 1 },
+          "source": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "admin.styles.count": { "type": "integer", "minimum": 0 },
+    "admin.styles": {
+      "description": "One row per stylesheet enqueued on the admin screen the scan ran from, with who it belongs to.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["handle", "source"],
+        "properties": {
+          "handle": { "type": "string", "minLength": 1 },
+          "source": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "admin.notice_vendors": {
+      "description": "One row per allowlisted vendor that registered a notice on this screen: which vendor, what it is called, and the plugin directory the callback came from. The intersection of the registry allowlist and what was observed — a vendor with nothing registered does not appear, and a plugin printing notices that is not on the allowlist does not appear either, though it is still counted.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["vendor", "name", "source"],
+        "properties": {
+          "vendor": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "source": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "admin.welcome_panel": {
+      "description": "Whether the dashboard welcome panel is still being printed.",
+      "type": "boolean"
+    },
+    "admin.update_nag": {
+      "description": "Whether the core update notice is registered on this screen. It is shown to everyone who can see the admin, including people who cannot act on it.",
+      "type": "boolean"
+    },
+
+    "assets.available": {
+      "description": "Whether the pages could be read at all. False means the site could not reach itself over loopback, so nothing else in this namespace was measured.",
+      "type": "boolean"
+    },
+    "assets.unavailable_reason": {
+      "description": "Why the pages could not be read. Present only when assets.available is false.",
+      "type": "string",
+      "minLength": 1
+    },
+    "assets.pages_sampled": {
+      "description": "How many pages were actually fetched and read. Every other fact here is a statement about these pages and no others, which is why the number travels with them: a rule that turned \"on all four pages we looked at\" into \"on every page\" would be making a claim nobody measured.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "assets.pages_offered": {
+      "description": "How many URLs the sample chose before fetching began. A number larger than pages_sampled means some did not answer, or the time budget ran out.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "assets.elapsed_ms": {
+      "description": "Milliseconds spent fetching and parsing pages.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "assets.post_types": {
+      "description": "Which post types the sampled pages represent, plus \"home\" for the front page.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "assets.scripts.count": { "type": "integer", "minimum": 0 },
+    "assets.scripts": {
+      "description": "One row per distinct script across the sampled pages: its enqueue handle where WordPress printed one, who it belongs to, how many of the sampled pages loaded it, and its size on disk where it is served from this site. An empty handle means the script was printed by hand rather than enqueued, which is worth knowing because nothing that manages enqueues can reach it.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["handle", "source", "pages"],
+        "properties": {
+          "handle": { "type": "string" },
+          "source": { "type": "string", "minLength": 1 },
+          "pages": { "type": "integer", "minimum": 1 },
+          "bytes": { "type": ["integer", "null"], "minimum": 0 }
+        }
+      }
+    },
+    "assets.styles.count": { "type": "integer", "minimum": 0 },
+    "assets.styles": {
+      "description": "One row per distinct stylesheet across the sampled pages, in the same shape as assets.scripts.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["handle", "source", "pages"],
+        "properties": {
+          "handle": { "type": "string" },
+          "source": { "type": "string", "minLength": 1 },
+          "pages": { "type": "integer", "minimum": 1 },
+          "bytes": { "type": ["integer", "null"], "minimum": 0 }
+        }
+      }
+    },
+    "assets.external_hosts": {
+      "description": "Hosts other than this site that the sampled pages fetched assets from, most-used first. Each is a name lookup and a connection a visitor's browser has to make.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["host", "count"],
+        "properties": {
+          "host": { "type": "string", "minLength": 1 },
+          "count": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "assets.google_fonts": {
+      "description": "Whether any sampled page fetched from a Google Fonts host.",
+      "type": "boolean"
+    },
+    "assets.cf7_asset_pages": {
+      "description": "How many sampled pages loaded Contact Form 7's own scripts or styles.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "assets.cf7_form_pages": {
+      "description": "How many sampled pages actually contained a Contact Form 7 form, read from the rendered markup so that a shortcode, a block and a page builder all count the same way.",
+      "type": "integer",
+      "minimum": 0
+    },
+
+    "woo.present": {
+      "description": "Whether WooCommerce is active. False is the only fact in this namespace on a site without a shop.",
+      "type": "boolean"
+    },
+    "woo.version": { "type": ["string", "null"] },
+    "woo.pages_sampled": {
+      "description": "How many pages were classified. Every page list here is a statement about these pages and no others.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "woo.shop_pages": {
+      "description": "Sampled pages that are part of the shop, as paths. Classified from the rendered page — the body classes WooCommerce adds, its block and shortcode markers, its own asset handles — because conditional tags answer for the request the scan is inside rather than for the page being classified.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "woo.other_pages": {
+      "description": "Sampled pages that are not part of the shop, as paths.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "woo.fragments_on_other": {
+      "description": "Non-shop pages that loaded the cart-fragments script, as paths.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "woo.block_styles_on_other": {
+      "description": "Non-shop pages that loaded WooCommerce block stylesheets, as paths.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "woo.mini_cart_pages": {
+      "description": "Sampled pages showing a cart — a header total, a widget, a mini-cart block — as paths. A store with one genuinely needs cart fragments everywhere, which is why this fact turns a recommendation into a refusal rather than adjusting a number.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "woo.mini_cart": { "type": "boolean" },
+    "woo.admin_analytics": { "type": "boolean" },
+    "woo.marketplace_suggestions": { "type": "boolean" },
+
+    "elementor.present": {
+      "description": "Whether Elementor is active. False is the only fact in this namespace on a site without it: zeroes for the rest would read as an Elementor site with nothing on it.",
+      "type": "boolean"
+    },
+    "elementor.pro": { "type": "boolean" },
+    "elementor.version": { "type": ["string", "null"] },
+    "elementor.widgets_available": {
+      "description": "How many widget types are registered. Absent when the catalogue could not be read, which is not the same as zero.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "elementor.widgets": {
+      "description": "One row per registered widget type and the plugin whose code defines it, found by asking where the widget's class lives rather than from a list of addons anybody maintains.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "source"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "source": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "elementor.packs": {
+      "description": "How many widgets each plugin registers, most first.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source", "count"],
+        "properties": {
+          "source": { "type": "string", "minLength": 1 },
+          "count": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "elementor.widgets_in_use": {
+      "description": "Widget types named directly by a saved design. A floor rather than a total: a widget placed through a dynamic tag, a shortcode, a template or a custom code block does not appear here as itself, which is why the other facts in this namespace record whether those are present.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "elementor.documents": {
+      "description": "How many posts, pages and templates hold a saved Elementor design.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "elementor.templates": {
+      "description": "How many Elementor library templates exist. Counted separately because a template is a document nothing links to directly, which is exactly the case that makes \"unused\" an unsafe word.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "elementor.dynamic_tags": { "type": "boolean" },
+    "elementor.shortcodes": { "type": "boolean" },
+    "elementor.custom_code": { "type": "boolean" },
+    "elementor.fonts": {
+      "description": "Font families the saved designs refer to.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "elementor.experiments": {
+      "description": "Elementor experiments switched on or off explicitly. An experiment left at its default has no option row and is absent here rather than reported as its default, which is Elementor's business and changes between versions.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["feature", "state"],
+        "properties": {
+          "feature": { "type": "string", "minLength": 1 },
+          "state": { "type": "string" }
+        }
+      }
+    },
+
+    "scan.elapsed_ms": {
+      "description": "Total milliseconds the scan took.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "scan.scanner_ms": {
+      "description": "Milliseconds each scanner took, keyed by scanner name. Recorded whether or not the budget was exceeded, so a slow site can be diagnosed rather than guessed at.",
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "scan.over_budget": {
+      "description": "Scanners that exceeded the two-second soft budget. The budget is soft by design: PHP cannot be preempted safely, and a scanner killed halfway through would leave facts that look complete but are not.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "scan.failed": {
+      "description": "Scanners that threw. The rest of the scan still ran; the failure is reported rather than presented as an absence of facts.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}

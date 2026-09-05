@@ -1,0 +1,9 @@
+{
+  "id": "yoast",
+  "title": "Yoast SEO",
+  "match": {
+    "plugin_files": ["wordpress-seo/wp-seo.php", "wordpress-seo-premium/wp-seo-premium.php"],
+    "constant": "WPSEO_VERSION"
+  },
+  "sets": { "plugins.detected.yoast": true }
+}

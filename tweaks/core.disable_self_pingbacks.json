@@ -1,0 +1,22 @@
+{
+  "id": "core.disable_self_pingbacks",
+  "schema_version": 1,
+  "title": "Stop the site pinging itself",
+  "category": "wordpress",
+  "kind": "config",
+  "risk": "safe",
+  "base_confidence": 0.98,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/core-disable-self-pingbacks.php",
+  "params": {},
+  "description": "When a post links to another page on the same site, WordPress sends itself a pingback and creates a comment. This removes internal links from the ping list. Pingbacks to other sites are unaffected.",
+  "breaks": ["Internal links stop appearing as pingback comments on the linked post"],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": [],
+  "probes": ["home", "admin"],
+  "since_wp": "2.3",
+  "docs_url": null
+}

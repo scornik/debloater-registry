@@ -1,0 +1,22 @@
+{
+  "id": "core.disable_embeds",
+  "schema_version": 1,
+  "title": "Stop offering your posts for embedding",
+  "category": "wordpress",
+  "kind": "config",
+  "risk": "safe",
+  "base_confidence": 0.94,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/core-disable-embeds.php",
+  "params": {},
+  "description": "Removes the oEmbed discovery tags, the wp-embed.js script and the /embed/ endpoint, which exist so that other sites can embed your posts. Embedding other people's content in your own posts is unaffected.",
+  "breaks": ["Other WordPress sites can no longer embed your posts as a live preview card; links to them still work normally"],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": ["frontend.requests", "frontend.scripts.count", "frontend.head_bytes"],
+  "probes": ["home", "content_page", "rest"],
+  "since_wp": "4.4",
+  "docs_url": null
+}

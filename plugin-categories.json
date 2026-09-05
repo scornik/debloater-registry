@@ -1,0 +1,75 @@
+{
+  "categories": {
+    "cache": {
+      "label": "Page caching"
+    },
+    "seo": {
+      "label": "SEO"
+    },
+    "security": {
+      "label": "Security"
+    },
+    "image": {
+      "label": "Image optimization"
+    },
+    "forms": {
+      "label": "Forms"
+    },
+    "backup": {
+      "label": "Backup"
+    },
+    "analytics": {
+      "label": "Analytics"
+    }
+  },
+  "plugins": {
+    "litespeed-cache": "cache",
+    "wp-rocket": "cache",
+    "wp-super-cache": "cache",
+    "w3-total-cache": "cache",
+    "wp-fastest-cache": "cache",
+    "cache-enabler": "cache",
+    "comet-cache": "cache",
+    "breeze": "cache",
+    "hyper-cache": "cache",
+    "wordpress-seo": "seo",
+    "seo-by-rank-math": "seo",
+    "all-in-one-seo-pack": "seo",
+    "autodescription": "seo",
+    "wp-seopress": "seo",
+    "squirrly-seo": "seo",
+    "slim-seo": "seo",
+    "wordfence": "security",
+    "better-wp-security": "security",
+    "sucuri-scanner": "security",
+    "all-in-one-wp-security-and-firewall": "security",
+    "wp-cerber": "security",
+    "ninjafirewall": "security",
+    "ewww-image-optimizer": "image",
+    "wp-smushit": "image",
+    "imagify": "image",
+    "shortpixel-image-optimiser": "image",
+    "optimole-wp": "image",
+    "tiny-compress-images": "image",
+    "contact-form-7": "forms",
+    "wpforms-lite": "forms",
+    "wpforms": "forms",
+    "gravityforms": "forms",
+    "ninja-forms": "forms",
+    "formidable": "forms",
+    "fluentform": "forms",
+    "forminator": "forms",
+    "updraftplus": "backup",
+    "backwpup": "backup",
+    "duplicator": "backup",
+    "all-in-one-wp-migration": "backup",
+    "wpvivid-backuprestore": "backup",
+    "google-site-kit": "analytics",
+    "google-analytics-for-wordpress": "analytics",
+    "ga-google-analytics": "analytics",
+    "wp-statistics": "analytics",
+    "matomo": "analytics",
+    "independent-analytics": "analytics",
+    "burst-statistics": "analytics"
+  }
+}

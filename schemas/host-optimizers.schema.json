@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://debloater.hakeemify.com/schemas/host-optimizers.schema.json",
+  "title": "Host and stack optimizers",
+  "description": "Optimization layers that offer settings of their own for ground Debloater also covers — a host's own optimizer plugin, or a cache plugin with the same switches built in. Each entry names the findings whose subject that layer visibly offers a setting for, so a finding can tell the user there is another place to change it. An entry says what a layer offers, never what it is currently doing: a finding fires because the scan observed the thing still happening, so nothing has been handled by anyone.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["optimizers"],
+  "properties": {
+    "optimizers": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "signal", "covers", "notes"],
+        "properties": {
+          "id": {
+            "description": "Stable identifier for this optimizer.",
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "name": {
+            "description": "What the optimizer calls itself, shown to the user.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "signal": {
+            "description": "How this optimizer's presence is established. Both types read a fact the scanners already produced; neither infers anything.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "value"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["detector", "host_vendor"]
+              },
+              "value": {
+                "description": "A detector id for type \"detector\", or an env.host_vendor value for type \"host_vendor\".",
+                "type": "string",
+                "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+              }
+            }
+          },
+          "covers": {
+            "description": "Finding ids whose subject this optimizer offers its own setting for. Deliberately conservative: an entry belongs here only when the setting is visible in the optimizer's own interface, because the claim shown to the user is that they have another place to change this and can go and look at it.",
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_]*)+$"
+            }
+          },
+          "notes": {
+            "description": "Where the setting lives in that optimizer, so the user can go and look. Shown as evidence.",
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "db.empty_trash",
+  "schema_version": 1,
+  "title": "Empty the trash",
+  "category": "database",
+  "kind": "data",
+  "risk": "medium",
+  "base_confidence": 0.92,
+  "reversible": true,
+  "destructive": true,
+  "handler": "Debloater\\Apply\\DataOperations\\TrashCleanup",
+  "params": {
+    "older_than_days": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 365,
+      "default": 30,
+      "description": "Only items that have been in the trash for at least this many days."
+    }
+  },
+  "description": "Permanently deletes posts, pages and other content that is already in the trash and has been there a while. WordPress empties the trash itself after thirty days, when its scheduled task runs.",
+  "breaks": [
+    "Trashed content is deleted permanently and can no longer be restored from the trash screen"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": [],
+  "probes": [
+    "admin",
+    "home"
+  ],
+  "since_wp": "2.9",
+  "docs_url": null
+}

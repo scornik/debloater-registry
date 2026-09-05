@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://debloater.hakeemify.com/schemas/detector.schema.json",
+  "title": "Detector",
+  "description": "Recognises a plugin, theme or host from cheap, local signals and writes the result into the facts. Detectors observe only: a detector never names a tweak and never makes a network request.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "match", "sets"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "match": {
+      "description": "Signals to look for. When several are given they are ORed: any one match is a detection.",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "plugin_file": {
+          "description": "Active plugin file, e.g. woocommerce/woocommerce.php.",
+          "type": "string",
+          "minLength": 1
+        },
+        "plugin_files": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "constant": {
+          "description": "A defined PHP constant.",
+          "type": "string",
+          "minLength": 1
+        },
+        "class": {
+          "description": "A declared PHP class.",
+          "type": "string",
+          "minLength": 1
+        },
+        "function": {
+          "description": "A declared PHP function.",
+          "type": "string",
+          "minLength": 1
+        },
+        "option": {
+          "description": "An option name that exists.",
+          "type": "string",
+          "minLength": 1
+        },
+        "theme": {
+          "description": "Active theme or parent theme stylesheet slug.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "sets": {
+      "description": "Facts to write when the detector matches. Every key is a path under plugins.detected., e.g. plugins.detected.woocommerce writes the woocommerce key of the plugins.detected map. Detectors may not write anywhere else: detection belongs to the plugins namespace, and a detector file must not be able to overwrite an unrelated observation.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^plugins\\.detected\\.[a-z0-9]+(-[a-z0-9]+)*$" },
+      "additionalProperties": {
+        "type": ["boolean", "string", "integer", "number", "null"]
+      }
+    },
+    "notes": { "type": ["string", "null"] }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://debloater.hakeemify.com/schemas/admin-notices.schema.json",
+  "title": "Admin notice vendors",
+  "description": "The plugins whose admin notices a site owner may choose to hide, and which code directories identify each. An allowlist: a plugin absent from this file cannot have its notices hidden by Debloater, no matter what a user types. Each entry says plainly what selecting it silences, because Debloater cannot tell a vendor's marketing apart from its warnings and does not pretend to.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["vendors"],
+  "properties": {
+    "vendors": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["slug", "name", "sources", "notes"],
+        "properties": {
+          "slug": {
+            "description": "What the user selects. Also the parameter value the generated runtime receives.",
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "name": {
+            "description": "What the vendor calls itself, shown in the interface.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "sources": {
+            "description": "Plugin directory slugs whose notice callbacks this entry covers. A callback is hidden only when the file it is defined in lives in one of these, so a vendor cannot silence anything but its own code.",
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+            }
+          },
+          "notes": {
+            "description": "What selecting this vendor actually hides, including what a person might miss. Shown on the tweak, not buried in a changelog.",
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

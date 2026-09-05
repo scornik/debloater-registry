@@ -1,0 +1,22 @@
+{
+  "id": "core.remove_rsd",
+  "schema_version": 1,
+  "title": "Remove the Really Simple Discovery link",
+  "category": "wordpress",
+  "kind": "config",
+  "risk": "safe",
+  "base_confidence": 0.98,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/core-remove-rsd.php",
+  "params": {},
+  "description": "Stops the page head advertising the XML-RPC endpoint to blog-client software. XML-RPC itself keeps working.",
+  "breaks": ["Desktop blogging clients that discover the site automatically will need the XML-RPC URL entered by hand"],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": ["frontend.head_bytes"],
+  "probes": ["home", "content_page"],
+  "since_wp": "2.3",
+  "docs_url": null
+}

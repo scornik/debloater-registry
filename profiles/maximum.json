@@ -1,0 +1,9 @@
+{
+  "id": "maximum",
+  "title": "Maximum",
+  "description": "Every change the engine will consider, including high-risk ones. Still excludes destructive operations: deleting rows is never something a profile decides on your behalf, and always needs its own confirmation and its own recovery point.",
+  "include_risk": ["safe", "low", "medium", "high"],
+  "exclude_destructive": true,
+  "tweaks": [],
+  "params": {}
+}

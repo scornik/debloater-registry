@@ -1,0 +1,30 @@
+{
+  "id": "core.limit_revisions",
+  "schema_version": 1,
+  "title": "Cap how many revisions each post keeps",
+  "category": "database",
+  "kind": "config",
+  "risk": "low",
+  "base_confidence": 0.93,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/core-limit-revisions.php",
+  "params": {
+    "keep": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50,
+      "default": 5,
+      "description": "Revisions to keep per post. WordPress keeps every revision by default."
+    }
+  },
+  "description": "Limits how many revisions WordPress keeps for each post from now on. Nothing is deleted: WordPress prunes the oldest revisions of a post the next time that post is saved, so a post nobody edits again keeps everything it already had.",
+  "breaks": ["Older revisions of a post disappear the next time that post is saved, so a change from long ago can no longer be restored"],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": ["db.revisions"],
+  "probes": ["admin"],
+  "since_wp": "3.6",
+  "docs_url": null
+}

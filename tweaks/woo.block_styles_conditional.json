@@ -1,0 +1,35 @@
+{
+  "id": "woo.block_styles_conditional",
+  "schema_version": 1,
+  "title": "Load WooCommerce block styles only where blocks are used",
+  "category": "assets",
+  "kind": "config",
+  "risk": "medium",
+  "base_confidence": 0.82,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/woo-block-styles-conditional.php",
+  "params": {},
+  "description": "WooCommerce enqueues its block stylesheets site-wide. This keeps them on every WooCommerce page and on any page whose content contains a WooCommerce block, and drops them elsewhere.",
+  "breaks": [
+    "A WooCommerce block inside a template part, a widget area or a page builder is not visible to this check and would lose its styling; such a theme uses the debloater_woo_page_needs_block_styles filter"
+  ],
+  "requires": [
+    "fact:plugins.detected.woocommerce=true"
+  ],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": [
+    "frontend.styles.count",
+    "frontend.requests"
+  ],
+  "probes": [
+    "home",
+    "content_page",
+    "woo_cart",
+    "woo_checkout",
+    "woo_account"
+  ],
+  "since_wp": "5.0",
+  "docs_url": null
+}

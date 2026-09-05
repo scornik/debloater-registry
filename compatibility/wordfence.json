@@ -1,0 +1,6 @@
+{
+  "subject": "plugin:wordfence",
+  "requires": ["cron:wp", "rest:auth"],
+  "notes": "Wordfence runs its scans and its firewall rule updates on WP-Cron, and its dashboard reads through the authenticated REST API.",
+  "confidence": 0.93
+}

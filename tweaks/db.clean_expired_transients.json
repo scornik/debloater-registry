@@ -1,0 +1,30 @@
+{
+  "id": "db.clean_expired_transients",
+  "schema_version": 1,
+  "title": "Delete expired transients",
+  "category": "database",
+  "kind": "data",
+  "risk": "low",
+  "base_confidence": 0.96,
+  "reversible": true,
+  "destructive": false,
+  "handler": "Debloater\\Apply\\DataOperations\\ExpiredTransientsCleanup",
+  "params": {
+    "batch_size": {
+      "type": "integer",
+      "minimum": 50,
+      "maximum": 2000,
+      "default": 500,
+      "description": "Rows deleted per batch."
+    }
+  },
+  "description": "Removes transients whose expiry time has already passed. WordPress deletes an expired transient the next time something asks for it, so a transient nobody asks for again is never cleaned up on its own.",
+  "breaks": [],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": ["db.transients_expired"],
+  "probes": ["home", "admin"],
+  "since_wp": "2.8",
+  "docs_url": null
+}

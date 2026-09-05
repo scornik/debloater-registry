@@ -1,0 +1,22 @@
+{
+  "id": "core.remove_generator",
+  "schema_version": 1,
+  "title": "Remove the WordPress version tag",
+  "category": "wordpress",
+  "kind": "config",
+  "risk": "safe",
+  "base_confidence": 0.99,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/core-remove-generator.php",
+  "params": {},
+  "description": "Stops WordPress printing a <meta name=\"generator\"> tag naming its exact version in the page head and in feeds.",
+  "breaks": [],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": ["frontend.head_bytes"],
+  "probes": ["home", "content_page"],
+  "since_wp": "2.5",
+  "docs_url": null
+}

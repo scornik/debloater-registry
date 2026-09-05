@@ -1,0 +1,47 @@
+{
+  "id": "db.clean_orphan_meta",
+  "schema_version": 1,
+  "title": "Delete metadata whose owner no longer exists",
+  "category": "database",
+  "kind": "data",
+  "risk": "medium",
+  "base_confidence": 0.88,
+  "reversible": true,
+  "destructive": true,
+  "handler": "Debloater\\Apply\\DataOperations\\OrphanMetaCleanup",
+  "params": {
+    "types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "post",
+          "term",
+          "user",
+          "comment"
+        ]
+      },
+      "default": [
+        "post",
+        "term",
+        "user",
+        "comment"
+      ],
+      "description": "Which metadata tables to consider."
+    }
+  },
+  "description": "Removes metadata rows whose post, term, user or comment no longer exists. What counts as an orphan is defined per type in docs/DECISIONS.md D-0026, and is deliberately conservative: a row is only an orphan when the table WordPress itself joins against has no matching row.",
+  "breaks": [
+    "Metadata belonging to deleted content is removed; a plugin that recreates content by id would no longer find it"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": [],
+  "probes": [
+    "admin",
+    "home"
+  ],
+  "since_wp": "3.0",
+  "docs_url": null
+}

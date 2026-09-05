@@ -1,0 +1,33 @@
+{
+  "id": "elementor.disable_google_fonts",
+  "schema_version": 1,
+  "title": "Stop Elementor loading Google Fonts",
+  "category": "assets",
+  "kind": "config",
+  "risk": "medium",
+  "base_confidence": 0.9,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/elementor-disable-google-fonts.php",
+  "params": {},
+  "description": "Answers Elementor's own elementor/frontend/print_google_fonts filter with false, so pages stop requesting font files from Google. This uses a switch Elementor documents and supports; Debloater does not reach into another plugin's internals, and where no supported switch exists it reports rather than changes.",
+  "breaks": [
+    "Text falls back to whatever font the visitor's browser has, which is visible on any design that depends on a particular typeface",
+    "Elementor's own font settings still say the font is selected, so the editor and the live page will disagree"
+  ],
+  "requires": [
+    "fact:plugins.detected.elementor=true"
+  ],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": [
+    "frontend.external_hosts",
+    "frontend.requests"
+  ],
+  "probes": [
+    "home",
+    "content_page"
+  ],
+  "since_wp": "5.0",
+  "docs_url": null
+}

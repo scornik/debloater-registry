@@ -1,0 +1,26 @@
+{
+  "id": "admin.remove_welcome_panel",
+  "schema_version": 1,
+  "title": "Remove the dashboard welcome panel",
+  "category": "admin",
+  "kind": "config",
+  "risk": "safe",
+  "base_confidence": 0.98,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/admin-remove-welcome-panel.php",
+  "params": {},
+  "description": "Removes the \"Welcome to WordPress!\" panel for everyone. WordPress already lets each person dismiss it, but that is stored per user, so on a site with several people each of them meets it once. Nobody's stored preference is changed, so unselecting this puts each person back exactly where they were.",
+  "breaks": [
+    "The shortcuts on the panel — customise your site, write your first post — are no longer one click away"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": [],
+  "probes": [
+    "admin"
+  ],
+  "since_wp": "3.3",
+  "docs_url": null
+}

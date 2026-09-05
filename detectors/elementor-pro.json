@@ -1,0 +1,10 @@
+{
+  "id": "elementor-pro",
+  "title": "Elementor Pro",
+  "match": {
+    "plugin_file": "elementor-pro/elementor-pro.php",
+    "constant": "ELEMENTOR_PRO_VERSION"
+  },
+  "sets": { "plugins.detected.elementor-pro": true },
+  "notes": "Elementor Pro is a paid plugin and is not installable from wp.org, so the compatibility matrix covers it only where a licence is available."
+}

@@ -1,0 +1,30 @@
+{
+  "id": "core.heartbeat_interval",
+  "schema_version": 1,
+  "title": "Slow down Heartbeat polling",
+  "category": "wordpress",
+  "kind": "config",
+  "risk": "low",
+  "base_confidence": 0.95,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/core-heartbeat-interval.php",
+  "params": {
+    "interval": {
+      "type": "integer",
+      "minimum": 15,
+      "maximum": 120,
+      "default": 60,
+      "description": "Seconds between Heartbeat requests. WordPress uses 15 in the admin by default."
+    }
+  },
+  "description": "Changes how often the admin sends its background Heartbeat request. Heartbeat is not switched off: autosave, post locking and session expiry keep working, just on a longer cycle.",
+  "breaks": ["Post-lock notices take longer to appear when several people edit the same post", "Autosave runs less often, so an unsaved draft can lose more work in a crash"],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": ["admin_ajax_requests_per_hour"],
+  "probes": ["home", "admin", "rest"],
+  "since_wp": "3.6",
+  "docs_url": null
+}

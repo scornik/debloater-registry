@@ -1,0 +1,9 @@
+{
+  "id": "rank-math",
+  "title": "Rank Math SEO",
+  "match": {
+    "plugin_files": ["seo-by-rank-math/rank-math.php", "seo-by-rank-math-pro/rank-math-pro.php"],
+    "class": "RankMath"
+  },
+  "sets": { "plugins.detected.rank-math": true }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "admin.remove_wp_news_widget",
+  "schema_version": 1,
+  "title": "Remove the WordPress Events and News widget",
+  "category": "admin",
+  "kind": "config",
+  "risk": "safe",
+  "base_confidence": 0.98,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/admin-remove-wp-news-widget.php",
+  "params": {},
+  "description": "Removes the Events and News widget from the dashboard. It is the one dashboard widget that fetches something over the network while an admin page is loading, so the reason to remove it is not only the space it takes up.",
+  "breaks": [
+    "WordPress release news and nearby events no longer appear on the dashboard"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": [],
+  "probes": [
+    "admin"
+  ],
+  "since_wp": "4.8",
+  "docs_url": null
+}

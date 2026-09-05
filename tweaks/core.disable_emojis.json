@@ -1,0 +1,22 @@
+{
+  "id": "core.disable_emojis",
+  "schema_version": 1,
+  "title": "Stop loading the emoji script",
+  "category": "wordpress",
+  "kind": "config",
+  "risk": "safe",
+  "base_confidence": 0.96,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/core-disable-emojis.php",
+  "params": {},
+  "description": "Removes the emoji detection script, its inline styles and its DNS prefetch from every page. Emoji characters still display; only the polyfill that replaces them with images on browsers that do not need it stops loading.",
+  "breaks": ["Browsers with no emoji font of their own show the system fallback glyph instead of a WordPress image"],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": ["frontend.requests", "frontend.scripts.count", "frontend.head_bytes"],
+  "probes": ["home", "content_page", "admin"],
+  "since_wp": "4.2",
+  "docs_url": null
+}

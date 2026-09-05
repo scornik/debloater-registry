@@ -1,0 +1,9 @@
+{
+  "id": "wp-rocket",
+  "title": "WP Rocket",
+  "match": {
+    "plugin_file": "wp-rocket/wp-rocket.php",
+    "constant": "WP_ROCKET_VERSION"
+  },
+  "sets": { "plugins.detected.wp-rocket": true }
+}

@@ -1,0 +1,34 @@
+{
+  "vendors": [
+    {
+      "slug": "woocommerce",
+      "name": "WooCommerce",
+      "sources": ["woocommerce"],
+      "notes": "WooCommerce prints operational notices from the same hook as its promotional ones — a pending database update, a gateway that needs configuring. Selecting this hides both."
+    },
+    {
+      "slug": "elementor",
+      "name": "Elementor",
+      "sources": ["elementor", "elementor-pro"],
+      "notes": "Covers Elementor and Elementor Pro. Elementor's notices include upgrade prompts and version-mismatch warnings between the two, and this does not tell them apart."
+    },
+    {
+      "slug": "yoast",
+      "name": "Yoast SEO",
+      "sources": ["wordpress-seo", "wordpress-seo-premium"],
+      "notes": "Yoast routes most of its messages through one notification centre, which carries both its upgrade prompts and its configuration warnings."
+    },
+    {
+      "slug": "rank-math",
+      "name": "Rank Math",
+      "sources": ["seo-by-rank-math", "seo-by-rank-math-pro"],
+      "notes": "Covers Rank Math and its Pro add-on."
+    },
+    {
+      "slug": "jetpack",
+      "name": "Jetpack",
+      "sources": ["jetpack"],
+      "notes": "Jetpack's admin notices include its Just In Time Messages, which are marketing, alongside connection and backup warnings, which are not."
+    }
+  ]
+}

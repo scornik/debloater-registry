@@ -1,0 +1,50 @@
+{
+  "id": "admin.suppress_promo_notices",
+  "schema_version": 1,
+  "title": "Hide admin notices from plugins you choose",
+  "category": "admin",
+  "kind": "config",
+  "risk": "medium",
+  "base_confidence": 0.9,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/admin-suppress-promo-notices.php",
+  "params": {
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+        "enum": [
+          "elementor",
+          "elementor-pro",
+          "jetpack",
+          "seo-by-rank-math",
+          "seo-by-rank-math-pro",
+          "woocommerce",
+          "wordpress-seo",
+          "wordpress-seo-premium"
+        ]
+      },
+      "default": [],
+      "description": "Plugin directory slugs whose admin notices are hidden. Only slugs on the allowlist in registry/admin-notices.json are accepted, and a callback is hidden only when its code lives inside that plugin."
+    }
+  },
+  "description": "Hides the admin notice area output of the plugins you select. It does not tell marketing apart from warnings, because these plugins print both from the same hook and nothing reliably separates them — so it hides all of it, per plugin, for a person who has read that sentence. Nothing is uninstalled or disabled; the notices come back the moment you unselect this.",
+  "breaks": [
+    "Operational notices from the selected plugins are hidden too, including ones about a pending database update or an expiring licence",
+    "A plugin whose only way of reporting a problem is an admin notice will report nothing"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": [
+    "admin.notices"
+  ],
+  "probes": [
+    "admin",
+    "home"
+  ],
+  "since_wp": "3.1",
+  "docs_url": null
+}

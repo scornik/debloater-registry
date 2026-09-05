@@ -1,0 +1,30 @@
+{
+  "id": "woo.suppress_marketplace_suggestions",
+  "schema_version": 1,
+  "title": "Hide WooCommerce marketplace suggestions",
+  "category": "admin",
+  "kind": "config",
+  "risk": "safe",
+  "base_confidence": 0.97,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/woo-suppress-marketplace-suggestions.php",
+  "params": {},
+  "description": "Answers WooCommerce's own woocommerce_allow_marketplace_suggestions and woocommerce_helper_suppress_admin_notices filters, which turn off the panels offering paid extensions on the products, orders and settings screens. Notices about your store itself — a pending database update, a gateway that needs configuring — are untouched.",
+  "breaks": [
+    "Extension recommendations no longer appear on the products, orders and settings screens"
+  ],
+  "requires": [
+    "fact:plugins.detected.woocommerce=true"
+  ],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": [
+    "admin.notices"
+  ],
+  "probes": [
+    "admin"
+  ],
+  "since_wp": "5.0",
+  "docs_url": null
+}

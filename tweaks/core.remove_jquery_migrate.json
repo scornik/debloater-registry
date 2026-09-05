@@ -1,0 +1,22 @@
+{
+  "id": "core.remove_jquery_migrate",
+  "schema_version": 1,
+  "title": "Stop loading jQuery Migrate",
+  "category": "assets",
+  "kind": "config",
+  "risk": "medium",
+  "base_confidence": 0.82,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/core-remove-jquery-migrate.php",
+  "params": {},
+  "description": "Removes jQuery Migrate from the front end. Migrate exists to keep code written for jQuery 1.x working on modern jQuery; a site whose theme and plugins are current does not need it. The admin is left alone.",
+  "breaks": ["Any theme or plugin still using jQuery APIs removed in 3.0 stops working on the front end, usually with no visible error"],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": ["frontend.requests", "frontend.scripts.count"],
+  "probes": ["home", "content_page"],
+  "since_wp": "5.5",
+  "docs_url": null
+}

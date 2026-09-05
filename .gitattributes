@@ -1,0 +1,14 @@
+# Line endings are part of the content here.
+#
+# manifest.json records the sha256 of every file, and the plugin checks its
+# vendored copy against those hashes. Git's autocrlf would hand a Windows
+# checkout CRLF versions of files whose hashes were taken over LF, so every
+# document would read as corrupt on one platform and fine on another — for a
+# reason that has nothing to do with what the documents say.
+#
+# So: LF everywhere, on every platform, whatever the local setting.
+* text=auto eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.mjs text eol=lf
+*.yml text eol=lf

@@ -1,0 +1,9 @@
+{
+  "id": "wp-super-cache",
+  "title": "WP Super Cache",
+  "match": {
+    "plugin_file": "wp-super-cache/wp-cache.php",
+    "function": "wp_cache_is_enabled"
+  },
+  "sets": { "plugins.detected.wp-super-cache": true }
+}

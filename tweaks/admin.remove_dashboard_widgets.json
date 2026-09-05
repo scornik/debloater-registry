@@ -1,0 +1,37 @@
+{
+  "id": "admin.remove_dashboard_widgets",
+  "schema_version": 1,
+  "title": "Remove dashboard widgets you do not use",
+  "category": "admin",
+  "kind": "config",
+  "risk": "safe",
+  "base_confidence": 0.97,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/admin-remove-dashboard-widgets.php",
+  "params": {
+    "widgets": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9_-]+$"
+      },
+      "default": [],
+      "description": "Meta box ids to take off the dashboard. The list you choose from is the one the scan actually found on your dashboard."
+    }
+  },
+  "description": "Stops the dashboard widgets you name from being registered. Nothing is uninstalled and no data is touched: the widget simply is not built on the dashboard, and comes back the moment you unselect this.",
+  "breaks": [
+    "A widget you removed is not on the dashboard, including any notice a plugin only shows there"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": [],
+  "probes": [
+    "admin",
+    "home"
+  ],
+  "since_wp": "2.7",
+  "docs_url": null
+}

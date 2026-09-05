@@ -1,0 +1,22 @@
+{
+  "id": "core.disable_dashicons_guests",
+  "schema_version": 1,
+  "title": "Stop loading dashicons for logged-out visitors",
+  "category": "assets",
+  "kind": "config",
+  "risk": "medium",
+  "base_confidence": 0.8,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/core-disable-dashicons-guests.php",
+  "params": {},
+  "description": "Dequeues the dashicons icon font for visitors who are not logged in. Logged-in users keep it, because they may have the admin bar.",
+  "breaks": ["A theme using dashicons for a menu toggle or a search icon loses those icons for visitors, with no error — the layout simply looks wrong"],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": ["frontend.requests", "frontend.styles.count"],
+  "probes": ["home", "content_page"],
+  "since_wp": "3.8",
+  "docs_url": null
+}

@@ -1,0 +1,6 @@
+{
+  "subject": "plugin:elementor",
+  "requires": ["jquery", "rest:auth"],
+  "notes": "The Elementor editor is built on jQuery and saves through the authenticated REST API. Front-end pages built with Elementor also load jQuery.",
+  "confidence": 0.98
+}

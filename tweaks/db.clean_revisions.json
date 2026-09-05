@@ -1,0 +1,37 @@
+{
+  "id": "db.clean_revisions",
+  "schema_version": 1,
+  "title": "Delete old post revisions",
+  "category": "database",
+  "kind": "data",
+  "risk": "medium",
+  "base_confidence": 0.9,
+  "reversible": true,
+  "destructive": true,
+  "handler": "Debloater\\Apply\\DataOperations\\RevisionsCleanup",
+  "params": {
+    "keep_per_post": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 50,
+      "default": 5,
+      "description": "How many of the most recent revisions to keep for each post."
+    }
+  },
+  "description": "Removes older revisions of each post, keeping the most recent ones. A revision is a saved earlier version of a post; deleting one means that version can no longer be restored from the editor.",
+  "breaks": [
+    "Earlier versions of a post can no longer be restored from the revisions screen, beyond the ones kept"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": [
+    "db.revisions"
+  ],
+  "probes": [
+    "admin",
+    "content_page"
+  ],
+  "since_wp": "2.6",
+  "docs_url": null
+}

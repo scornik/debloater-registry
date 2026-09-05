@@ -1,0 +1,18 @@
+{
+  "optimizers": [
+    {
+      "id": "litespeed-cache",
+      "name": "LiteSpeed Cache",
+      "signal": { "type": "detector", "value": "litespeed-cache" },
+      "covers": ["wp.emojis.loaded"],
+      "notes": "LiteSpeed Cache has its own emoji removal under Page Optimization → HTML Settings. The list is short on purpose: it names only settings that exist in the optimizer's own interface, where a site owner can see and change them."
+    },
+    {
+      "id": "siteground-optimizer",
+      "name": "SiteGround Optimizer",
+      "signal": { "type": "host_vendor", "value": "siteground" },
+      "covers": ["wp.emojis.loaded"],
+      "notes": "SiteGround Optimizer has its own emoji removal under Frontend Optimization. As above, this lists only what the optimizer visibly offers, not everything it might be doing."
+    }
+  ]
+}

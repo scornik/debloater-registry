@@ -1,0 +1,9 @@
+{
+  "id": "performance",
+  "title": "Performance",
+  "description": "Everything in Safe, plus medium-risk changes that remove work from the front end. Each one can break something a theme or plugin depends on, so this profile is reviewed rather than applied in one click.",
+  "include_risk": ["safe", "low", "medium"],
+  "exclude_destructive": true,
+  "tweaks": [],
+  "params": {}
+}

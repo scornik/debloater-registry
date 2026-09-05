@@ -1,0 +1,9 @@
+{
+  "id": "safe",
+  "title": "Safe",
+  "description": "Only changes with a small blast radius and a clean way back. This is what the Fix Safe Issues button applies.",
+  "include_risk": ["safe", "low"],
+  "exclude_destructive": true,
+  "tweaks": [],
+  "params": {}
+}

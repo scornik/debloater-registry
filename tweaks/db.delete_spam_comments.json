@@ -1,0 +1,35 @@
+{
+  "id": "db.delete_spam_comments",
+  "schema_version": 1,
+  "title": "Delete comments marked as spam",
+  "category": "database",
+  "kind": "data",
+  "risk": "low",
+  "base_confidence": 0.94,
+  "reversible": true,
+  "destructive": true,
+  "handler": "Debloater\\Apply\\DataOperations\\SpamCommentsCleanup",
+  "params": {
+    "older_than_days": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 365,
+      "default": 30,
+      "description": "Only spam that has been marked as spam for at least this many days."
+    }
+  },
+  "description": "Permanently deletes comments already marked as spam. Only comments something has judged to be spam are touched; comments awaiting moderation are left alone.",
+  "breaks": [
+    "A comment wrongly marked as spam can no longer be recovered from the spam queue"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": [],
+  "probes": [
+    "admin",
+    "content_page"
+  ],
+  "since_wp": "3.0",
+  "docs_url": null
+}

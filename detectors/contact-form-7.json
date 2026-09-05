@@ -1,0 +1,9 @@
+{
+  "id": "contact-form-7",
+  "title": "Contact Form 7",
+  "match": {
+    "plugin_file": "contact-form-7/wp-contact-form-7.php",
+    "constant": "WPCF7_VERSION"
+  },
+  "sets": { "plugins.detected.contact-form-7": true }
+}

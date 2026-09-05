@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://debloater.hakeemify.com/schemas/compat.schema.json",
+  "title": "Compatibility rule",
+  "description": "States what a detected plugin, theme or stack component depends on. The CompatibilityResolver turns these into dependencies_detected counts and dont_touch decisions; a compatibility rule never names a tweak.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["subject", "requires"],
+  "properties": {
+    "subject": {
+      "description": "What the rule is about: plugin:<slug>, theme:<slug>, or host:<vendor>.",
+      "type": "string",
+      "pattern": "^(plugin|theme|host):[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "requires": {
+      "description": "Capabilities the subject depends on. The vocabulary is closed so the resolver can reason about it.",
+      "type": "array",
+      "minItems": 0,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "rest:public",
+          "rest:auth",
+          "jquery",
+          "jquery-migrate",
+          "heartbeat",
+          "xmlrpc",
+          "embeds",
+          "dashicons:frontend",
+          "cron:wp"
+        ]
+      }
+    },
+    "notes": {
+      "description": "Why the dependency exists, shown as evidence when this rule causes a dont_touch.",
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "confidence": {
+      "description": "How sure we are of the dependency. Feeds ConfidenceCalculator.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "id": "woo.disable_admin_analytics",
+  "schema_version": 1,
+  "title": "Turn off WooCommerce Analytics",
+  "category": "admin",
+  "kind": "config",
+  "risk": "medium",
+  "base_confidence": 0.9,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/woo-disable-admin-analytics.php",
+  "params": {},
+  "description": "Removes the Analytics section of WooCommerce Admin through WooCommerce's own woocommerce_admin_features filter. Analytics keeps its own lookup tables and fills them in from a scheduled job whenever an order changes, which is a continuous background cost on a busy store.",
+  "breaks": [
+    "The Analytics reports are no longer in the admin menu",
+    "WooCommerce stops importing new orders into its analytics tables, so turning this back on leaves a gap until it catches up"
+  ],
+  "requires": [
+    "fact:plugins.detected.woocommerce=true"
+  ],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": [
+    "cron.events"
+  ],
+  "probes": [
+    "admin",
+    "woo_checkout"
+  ],
+  "since_wp": "5.3",
+  "docs_url": null
+}

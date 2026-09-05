@@ -1,0 +1,22 @@
+{
+  "id": "core.remove_shortlink",
+  "schema_version": 1,
+  "title": "Remove the shortlink tag and header",
+  "category": "wordpress",
+  "kind": "config",
+  "risk": "safe",
+  "base_confidence": 0.97,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/core-remove-shortlink.php",
+  "params": {},
+  "description": "Stops WordPress emitting the rel=\"shortlink\" tag in the head and the matching Link: HTTP header, both of which expose the ?p=<id> form of every URL.",
+  "breaks": ["Anything relying on automatic shortlink discovery, such as some sharing buttons, will fall back to the full URL"],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": ["frontend.head_bytes"],
+  "probes": ["home", "content_page"],
+  "since_wp": "3.0",
+  "docs_url": null
+}

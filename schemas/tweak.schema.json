@@ -1,0 +1,145 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://debloater.hakeemify.com/schemas/tweak.schema.json",
+  "title": "Tweak",
+  "description": "A registry tweak definition. Config tweaks compile into runtime.php as hook registrations; data tweaks run once as a DataOperation. Context rules live in analyzer rules and the recommendation engine, never here, so the runtime stays dumb.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "schema_version",
+    "title",
+    "category",
+    "kind",
+    "risk",
+    "base_confidence",
+    "reversible",
+    "destructive",
+    "handler",
+    "description"
+  ],
+  "properties": {
+    "id": {
+      "description": "Dot-namespaced tweak id, e.g. core.heartbeat_interval.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_]*)+$"
+    },
+    "schema_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "category": {
+      "type": "string",
+      "enum": ["wordpress", "configuration", "database", "plugins", "maintenance", "admin", "assets"]
+    },
+    "kind": {
+      "description": "config: hooks registered in runtime.php. data: a one-shot DataOperation.",
+      "type": "string",
+      "enum": ["config", "data"]
+    },
+    "risk": {
+      "type": "string",
+      "enum": ["safe", "low", "medium", "high"]
+    },
+    "base_confidence": {
+      "description": "Starting confidence before ConfidenceCalculator applies penalties.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "reversible": { "type": "boolean" },
+    "destructive": {
+      "description": "True only for data tweaks that delete rows. Destructive tweaks can never enter the Fix Safe Issues plan and require a complete Level B snapshot.",
+      "type": "boolean"
+    },
+    "handler": {
+      "description": "For config: a path relative to the plugin root under runtime-handlers/. For data: a fully-qualified DataOperation class name.",
+      "type": "string",
+      "minLength": 1
+    },
+    "params": {
+      "description": "Parameter schema. Values are validated against this before they are emitted into generated code.",
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$" },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["integer", "number", "string", "boolean", "array"]
+          },
+          "minimum": { "type": "number" },
+          "maximum": { "type": "number" },
+          "minLength": { "type": "integer", "minimum": 0 },
+          "maxLength": { "type": "integer", "minimum": 0 },
+          "pattern": { "type": "string" },
+          "enum": { "type": "array", "minItems": 1 },
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["integer", "number", "string", "boolean"]
+              },
+              "pattern": { "type": "string" },
+              "enum": { "type": "array", "minItems": 1 }
+            }
+          },
+          "default": {},
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "description": { "type": "string", "minLength": 1 },
+    "breaks": {
+      "description": "Plain statements of what stops working, shown before applying.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "requires": {
+      "description": "Tweak ids, or fact predicates of the form fact:<key>=<value>.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^([a-z][a-z0-9]*(\\.[a-z][a-z0-9_]*)+|fact:[a-z][a-z0-9_]*(\\.[a-z0-9][a-z0-9_-]*)+=.+)$"
+      }
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_]*)+$"
+      }
+    },
+    "conditions": {
+      "description": "Reserved. The runtime never evaluates conditions; the engine may from Phase 4.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "measurements": {
+      "description": "Meter metric names this tweak is expected to move.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "probes": {
+      "description": "Probe names that must verify the site after this tweak is applied.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]*$"
+      }
+    },
+    "since_wp": {
+      "type": ["string", "null"],
+      "pattern": "^\\d+(\\.\\d+)*$"
+    },
+    "docs_url": {
+      "type": ["string", "null"],
+      "format": "uri"
+    }
+  }
+}

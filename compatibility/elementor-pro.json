@@ -1,0 +1,6 @@
+{
+  "subject": "plugin:elementor-pro",
+  "requires": ["jquery", "rest:auth"],
+  "notes": "Elementor Pro extends the editor and inherits its dependencies.",
+  "confidence": 0.98
+}

@@ -1,0 +1,34 @@
+{
+  "id": "db.clean_auto_drafts",
+  "schema_version": 1,
+  "title": "Delete abandoned auto-drafts",
+  "category": "database",
+  "kind": "data",
+  "risk": "low",
+  "base_confidence": 0.95,
+  "reversible": true,
+  "destructive": true,
+  "handler": "Debloater\\Apply\\DataOperations\\AutoDraftsCleanup",
+  "params": {
+    "older_than_days": {
+      "type": "integer",
+      "minimum": 7,
+      "maximum": 365,
+      "default": 30,
+      "description": "Only auto-drafts untouched for at least this many days."
+    }
+  },
+  "description": "Removes auto-drafts that were never written. WordPress creates one every time somebody opens the editor and abandons it; it deletes them itself after seven days, but only for posts it created, and only when its own scheduled task runs.",
+  "breaks": [
+    "An abandoned draft nobody returned to is gone for good"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": [],
+  "probes": [
+    "admin"
+  ],
+  "since_wp": "3.5",
+  "docs_url": null
+}

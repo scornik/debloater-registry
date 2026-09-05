@@ -1,0 +1,9 @@
+{
+  "id": "elementor",
+  "title": "Elementor",
+  "match": {
+    "plugin_file": "elementor/elementor.php",
+    "constant": "ELEMENTOR_VERSION"
+  },
+  "sets": { "plugins.detected.elementor": true }
+}

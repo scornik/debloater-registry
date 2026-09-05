@@ -1,0 +1,29 @@
+{
+  "id": "admin.hide_update_nags_non_admins",
+  "schema_version": 1,
+  "title": "Hide the core update notice from people who cannot update",
+  "category": "admin",
+  "kind": "config",
+  "risk": "safe",
+  "base_confidence": 0.95,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/admin-hide-update-nags-non-admins.php",
+  "params": {},
+  "description": "The \"WordPress x.y is available\" notice is shown to everyone who can see the admin, including authors, editors and shop managers, none of whom can act on it. This hides it from them. Anyone who can actually update still sees it, every time, and that is not configurable.",
+  "breaks": [
+    "An editor who used to relay the update notice to whoever maintains the site will no longer see it"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": [
+    "admin.notices"
+  ],
+  "probes": [
+    "admin",
+    "login"
+  ],
+  "since_wp": "3.1",
+  "docs_url": null
+}

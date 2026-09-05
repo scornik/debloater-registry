@@ -1,0 +1,6 @@
+{
+  "subject": "plugin:litespeed-cache",
+  "requires": [],
+  "notes": "LiteSpeed Cache serves pages from its own cache and does not depend on any of the capabilities a tweak can remove. Recorded explicitly so that its presence is a known quantity rather than an unexamined one.",
+  "confidence": 0.95
+}

@@ -1,0 +1,36 @@
+{
+  "id": "woo.cart_fragments_conditional",
+  "schema_version": 1,
+  "title": "Load cart fragments only where a cart is shown",
+  "category": "assets",
+  "kind": "config",
+  "risk": "medium",
+  "base_confidence": 0.85,
+  "reversible": true,
+  "destructive": false,
+  "handler": "runtime-handlers/woo-cart-fragments-conditional.php",
+  "params": {},
+  "description": "WooCommerce's cart-fragments script makes an admin-ajax request on every page load to find out what is in the cart — on the blog, the contact page, the privacy policy. This keeps it on every WooCommerce page and drops it elsewhere, deciding page by page using WooCommerce's own conditional tags at the moment each page is built.",
+  "breaks": [
+    "A cart total shown in the header or a widget on a non-shop page will stop updating without a page reload",
+    "A page builder or template part that renders a cart where this cannot see it needs the debloater_woo_page_needs_cart filter"
+  ],
+  "requires": [
+    "fact:plugins.detected.woocommerce=true"
+  ],
+  "conflicts": [],
+  "conditions": [],
+  "measurements": [
+    "frontend.requests",
+    "frontend.scripts.count"
+  ],
+  "probes": [
+    "home",
+    "content_page",
+    "woo_cart",
+    "woo_checkout",
+    "woo_account"
+  ],
+  "since_wp": "5.0",
+  "docs_url": null
+}

@@ -1,0 +1,52 @@
+name: Registry
+
+# What can go wrong with data: it stops parsing, the manifest stops describing
+# what is here, or a document loses a field the plugin reads. All three are
+# caught below, with nothing installed beyond Node — a check that needs no
+# dependencies is one that still runs in two years.
+#
+# Schema validation is deliberately not duplicated here. The plugin validates
+# every document as it loads it, and its suite runs against this content; a
+# second validator in this repository would eventually disagree with the one
+# whose opinion actually decides whether a site loads the registry.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    name: Integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Every document parses, and the manifest describes what is here
+        run: node tests/integrity.mjs
+
+      # A release is identified by its tag, and the manifest carries the tag it
+      # was generated for. If a tag is pushed that the manifest does not name,
+      # a site would report a version it is not running.
+      - name: The tag matches the manifest
+        if: startsWith( github.ref, 'refs/tags/' )
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          recorded=$(node -p "require('./manifest.json').tag")
+
+          if [ "$tag" != "$recorded" ]; then
+            echo "Tag $tag was pushed, but manifest.json says $recorded."
+            exit 1
+          fi
+
+          echo "Tag and manifest agree on $tag."

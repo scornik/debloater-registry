@@ -1,0 +1,9 @@
+{
+  "id": "wordfence",
+  "title": "Wordfence Security",
+  "match": {
+    "plugin_file": "wordfence/wordfence.php",
+    "constant": "WORDFENCE_VERSION"
+  },
+  "sets": { "plugins.detected.wordfence": true }
+}

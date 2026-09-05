@@ -1,0 +1,9 @@
+{
+  "id": "woocommerce",
+  "title": "WooCommerce",
+  "match": {
+    "plugin_file": "woocommerce/woocommerce.php",
+    "class": "WooCommerce"
+  },
+  "sets": { "plugins.detected.woocommerce": true }
+}
