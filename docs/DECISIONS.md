@@ -11,6 +11,77 @@ before it were taken elsewhere.
 
 ---
 
+## Principles
+
+Decisions that turned out to apply beyond what they were written about.
+
+They are here because a numbered list is not something anybody reads
+front-to-back. `D-0057` argued that an allow-list is safer than a deny-list,
+and eighteen decisions later the same mistake was made two directories away, in
+a repository that carries a copy of the decision. The reasoning was written
+down and still not found. So the general half is lifted out, and the specific
+half stays where it was.
+
+**Read this section before implementing anything.** It is short on purpose. If
+it grows past about a dozen entries it has stopped being read, and that is a
+signal to consolidate rather than to append.
+
+---
+
+**P1. Allow-list what ships. Never deny-list.**
+A deny-list ships what it forgets, and what it forgets is always something
+nobody had written yet. Enumerate what belongs; refuse what is not on the list.
+*From `D-0057` in `scornik/debloater`. Violated here, in `registryFiles()`,
+and fixed in `67f3e6a` — the failure that produced this section.*
+
+**P2. A skipped test is a failed test in CI.**
+Skipping is a fair answer to "this machine cannot run that" and never a fair
+answer in the one environment configured to run everything. The two are
+indistinguishable in a green tick, so a suite that can skip needs a step that
+fails when the skip count is not zero.
+*From `D-0065` in `scornik/debloater-pro`.*
+
+**P3. A check that has never passed in the runner is not coverage.**
+Watch a new or repaired CI job go green at least once before counting it.
+Passing locally is a different claim about a different machine, and a check
+that cannot pass is indistinguishable from a check nobody wrote.
+*From `D-0066` in `scornik/debloater`.*
+
+**P4. Pin the literal that forms a contract, never the constant both sides
+read.**
+`assertSame( Thing::NAME . '=x', $url )` compares a constant with itself: rename
+it and both halves rename together, so the test agrees with whatever it became
+while the other component, still sending the old name, silently stops working.
+Write the literal, and name who else depends on it.
+*Not a numbered decision — `CLAUDE.md` in `scornik/debloater`, under Testing
+conventions.*
+
+**P5. When code encodes a vocabulary that lives somewhere else, test it against
+the real artifact.**
+Risk bands taken from a description instead of the schema; fact-key prefixes
+taken from a brief instead of a scan. Both were wrong, both failed *safe*, and
+both passed their tests because the tests used the same invented vocabulary.
+Commit a real sample and assert against it.
+*From this repository: `7d73490`, and the comments in
+`pipeline/lib/direction.mjs` and `pipeline/lib/factdiff.mjs`. The risk bands and
+the fact families were both invented, and both tested against the invention.*
+
+**P6. When both defaults are wrong, refuse.**
+Sometimes including by default is unsafe and excluding by default is unsafe in
+a quieter way. Do neither: stop, name the thing, and make somebody decide. A
+default is only defensible when one direction is harmless.
+*From `67f3e6a` in this repository, extending `D-0057`.*
+
+**P7. Code that decides something is importable; code that runs does not
+decide.**
+Anything with a judgement in it belongs where a test can import it without
+consequences. Anything that reads arguments, touches the network or exits is a
+script, and a test must never import one — twice in one afternoon a suite made
+live API calls, or died for want of an argument, because it imported a stage.
+*From `docs/PIPELINE.md`, "A convention worth keeping".*
+
+---
+
 ## D-0067 – `main` carries content; a tag carries a signature
 
 - **Phase:** 21
