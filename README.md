@@ -78,6 +78,16 @@ Everything else waits for a person, and two things always do: a tweak's
 It signs nothing and releases nothing. `docs/PIPELINE.md` has every stage, what
 it can see, and what it cannot.
 
+The model it asks is configurable and defaults to Gemini's free tier
+(`PROVIDER=gemini`, `GEMINI_API_KEY`); `PROVIDER=anthropic` switches it. Nothing
+downstream of the call knows which answered.
+
+Everything the pipeline sends to a model is already public — these documents,
+facts about a throwaway CI container, and links to public forum threads — which
+is what makes a free tier that trains on its inputs an acceptable place to send
+it. `docs/PIPELINE.md` records that as a constraint on what may ever be added to
+the prompt.
+
 ## Versions
 
 Releases are tagged, and `manifest.json` names the tag it was generated for.

@@ -282,10 +282,21 @@ jobs:
             fi
           done
 
+      # Gemini by default: the Anthropic API bills separately from a claude.ai
+      # subscription, and Google's free tier covers the Flash models this needs.
+      # Set PROVIDER=anthropic and ANTHROPIC_API_KEY to switch back; nothing
+      # downstream of the call knows the difference.
+      #
+      # A missing key fails this job rather than producing an empty proposal
+      # set, so a run that could not ask is never mistaken for a run where the
+      # model had nothing to say.
       - name: Ask the model
         env:
+          PROVIDER: ${{ vars.PROVIDER || 'gemini' }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          ANALYZE_MODEL: ${{ vars.ANALYZE_MODEL }}
+          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL }}
         run: |
           node pipeline/analyze.mjs \
             --candidates=candidates.json \

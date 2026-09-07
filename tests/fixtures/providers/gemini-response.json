@@ -1,0 +1,24 @@
+{
+    "_comment": [
+        "The shape generativelanguage.googleapis.com returns, recorded from the",
+        "documented response schema at ai.google.dev/api/generate-content.",
+        "",
+        "Not captured from a live call: this repository makes none in tests. What",
+        "it pins is the path to the text -- candidates[0].content.parts[].text --",
+        "which is the only part of a provider that differs in a way worth testing."
+    ],
+    "candidates": [
+        {
+            "content": {
+                "role": "model",
+                "parts": [
+                    { "text": "{\"proposals\":[{\"file\":\"tweaks/core.disable_emojis.json\",\"op\":\"modify\",\"why\":\"probe failed\",\"direction\":\"safer\",\"evidence\":[{\"tweak\":\"core.disable_emojis\"}],\"after\":{\"id\":\"core.disable_emojis\",\"risk\":\"medium\"}}]}" }
+                ]
+            },
+            "finishReason": "STOP",
+            "index": 0
+        }
+    ],
+    "usageMetadata": { "promptTokenCount": 4210, "candidatesTokenCount": 96, "totalTokenCount": 4306 },
+    "modelVersion": "gemini-3.8-flash"
+}

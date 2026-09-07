@@ -22,7 +22,7 @@ everything downstream believes the first one. So:
 | The matrix report is missing | fail — the matrix did not run; it did not pass |
 | The matrix report has no testcases | fail |
 | A named artifact does not exist | fail — something meant to produce it |
-| No `ANTHROPIC_API_KEY` | fail — "the model suggested nothing" is a different sentence from "nobody asked it" |
+| No API key for the selected provider | fail — "the model suggested nothing" is a different sentence from "nobody asked it" |
 | The model's reply is not JSON | fail |
 | A support feed is unreachable | **warn** and continue — the run is still worth making on what the scanner found |
 | A version API is unreachable | **warn**, still dispatch, and end the watcher red |
@@ -94,6 +94,49 @@ it cites.
 
 Sends the schemas, `AUTHORING.md` and the three artifacts to a model and
 requires JSON back.
+
+#### Which model
+
+The call is in `pipeline/lib/provider.mjs`, behind one function returning text.
+Nothing downstream knows which provider answered; the run artifact records
+`provider` and `model` for the audit trail and nothing branches on either.
+
+| `PROVIDER` | Key | Model variable | Default |
+|---|---|---|---|
+| `gemini` *(default)* | `GEMINI_API_KEY` | `GEMINI_MODEL` | `gemini-3.8-flash` |
+| `anthropic` | `ANTHROPIC_API_KEY` | `ANTHROPIC_MODEL` | `claude-sonnet-5` |
+
+Requests time out at 180 seconds and are retried **once**, after 20 seconds, on
+a 429 or a 5xx. A 400, 401 or 403 is not retried: the request or the key is
+wrong, and repeating it changes nothing except the log — and on a free tier it
+spends quota to do so.
+
+#### The free tier, and what it costs
+
+Gemini is the default because the Anthropic API bills separately from a
+claude.ai subscription, and this stage sends a few thousand tokens a week.
+
+Two things about the free tier are worth stating plainly:
+
+**Flash only.** The free tier covers the Flash and Flash-Lite models, not Pro.
+A test asserts the configured default is a Flash model, because "switch to Pro
+for better proposals" is an easy change that would start billing silently.
+
+**Google uses free-tier prompts to improve its products.** Their pricing page
+says so, and it is a real difference from the paid tier, where it does not.
+
+That is acceptable here for one specific reason, and the reason is a constraint
+rather than a coincidence: **every input this stage sends is already public.**
+
+- the schemas, `AUTHORING.md` and the tweak documents — this is a public repository;
+- `candidates.json` — facts about a throwaway WordPress container in CI;
+- `regressions.json` — test names and failure messages from that container;
+- `signals.json` — links and short excerpts from public forum threads.
+
+No customer data, no site data, no keys, and nothing from anybody's install
+goes into the prompt. **Nothing that is not already public may be added to it.**
+If that ever needs to change — a private beta's scan, say, or a support ticket
+— the provider must change with it, and this paragraph is the reason.
 
 **The model is the least trusted component here.** It is asked to interpret
 observations and cannot know whether it is doing that or producing something
@@ -193,9 +236,10 @@ and inside a container the site's own address can resolve to the container. When
 that happens `assets.available` is `false` and the asset facts are missing
 rather than wrong.
 
-**The analyze stage has never run against the real API.** It is exercised by
+**The analyze stage has never run against a real API.** It is exercised by
 `--fixture`, which is how the dry run reaches every check without a key or a
-bill. The first real run will be the first time the prompt meets the model.
+bill, and by recorded response fixtures for both provider shapes. The first
+scheduled run will be the first time the prompt meets a model.
 
 ---
 
@@ -206,9 +250,14 @@ node pipeline/watch.mjs                    # is anything newer?
 node pipeline/observe.mjs --stack=clean --facts=scan.json --out=candidates.json
 node pipeline/verify.mjs  --junit=matrix.xml --out=regressions.json
 node pipeline/listen.mjs  --out=signals.json --days=14
+# --fixture reads a recorded reply and calls nothing.
 node pipeline/analyze.mjs --candidates=candidates.json \
     --regressions=regressions.json --signals=signals.json \
     --fixture=tests/fixtures/model-response.json --out=proposals.json
+
+# For real, against the default provider:
+GEMINI_API_KEY=... node pipeline/analyze.mjs --candidates=candidates.json \
+    --regressions=regressions.json --signals=signals.json --out=proposals.json
 node pipeline/propose.mjs --proposals=proposals.json \
     --candidates=candidates.json --regressions=regressions.json \
     --signals=signals.json --dry-run

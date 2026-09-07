@@ -1,0 +1,18 @@
+{
+    "_comment": [
+        "The shape api.anthropic.com/v1/messages returns.",
+        "",
+        "The same proposal as the Gemini fixture, in a different envelope, so the",
+        "test can assert both reduce to identical text and therefore to identical",
+        "proposals. Nothing downstream may be able to tell which one answered."
+    ],
+    "id": "msg_01example",
+    "type": "message",
+    "role": "assistant",
+    "model": "claude-sonnet-5",
+    "content": [
+        { "type": "text", "text": "{\"proposals\":[{\"file\":\"tweaks/core.disable_emojis.json\",\"op\":\"modify\",\"why\":\"probe failed\",\"direction\":\"safer\",\"evidence\":[{\"tweak\":\"core.disable_emojis\"}],\"after\":{\"id\":\"core.disable_emojis\",\"risk\":\"medium\"}}]}" }
+    ],
+    "stop_reason": "end_turn",
+    "usage": { "input_tokens": 4210, "output_tokens": 96 }
+}

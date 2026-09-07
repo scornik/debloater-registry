@@ -30,14 +30,26 @@
  * A model that returned confident nonsense would cost it nothing either, and
  * that is the property being bought.
  *
+ * ## Which model, and why it does not matter here
+ *
+ * The call lives in `lib/provider.mjs`, behind one function that returns text.
+ * `PROVIDER` selects it and defaults to `gemini`, because the Anthropic API
+ * bills separately from a claude.ai subscription and Google's free tier covers
+ * the Flash models this needs.
+ *
+ * Nothing below this line knows which provider answered. Every gate works on
+ * the parsed proposals, so adding a provider cannot weaken one; the artifact
+ * records `provider` and `model` for the audit trail and nothing branches on
+ * either.
+ *
  * ## No key, no run
  *
- * The API key comes from a secret and the model from a repository variable.
- * Neither is in this repository and neither may be. Without a key this stage
- * refuses to run rather than silently producing an empty proposal set — "the
- * model had no suggestions" and "nobody called the model" must not look alike.
+ * The key comes from a secret and the model from a repository variable. Neither
+ * is in this repository and neither may be. Without a key this stage refuses to
+ * run rather than silently producing an empty proposal set — "the model had no
+ * suggestions" and "nobody called the model" must not look alike.
  *
- * `--fixture` reads a recorded reply instead of calling the API, which is how
+ * `--fixture` reads a recorded reply instead of calling anything, which is how
  * the dry run exercises every check below without a key or a bill.
  */
 
@@ -47,12 +59,10 @@ import { fileURLToPath } from 'node:url';
 
 import { classify } from './lib/direction.mjs';
 import { gate } from './lib/evidence.mjs';
+import { complete } from './lib/provider.mjs';
 import { validateFor } from './lib/schema.mjs';
 
 const ROOT = path.resolve( path.dirname( fileURLToPath( import.meta.url ) ), '..' );
-
-const API = 'https://api.anthropic.com/v1/messages';
-const DEFAULT_MODEL = 'claude-sonnet-5';
 
 /**
  * Read a `--name=value` argument.
@@ -203,56 +213,33 @@ export const parseReply = ( text ) => {
 };
 
 /**
- * Ask the model.
+ * Ask whichever model this run is configured for.
  *
- * @return {Promise<string>} The reply text.
+ * @return {Promise<{text: string, provider: string, model: string}>} The reply.
  */
 const ask = async () => {
-	const key = process.env.ANTHROPIC_API_KEY;
-
-	if ( ! key ) {
-		process.stderr.write(
-			'\nNo ANTHROPIC_API_KEY.\n\n' +
-				'This stage refuses to run without one rather than writing an empty\n' +
-				'proposal set: "the model suggested nothing" and "nobody asked the\n' +
-				'model" must not look the same in an artifact.\n\n' +
-				'Use --fixture=<file> to exercise the checks without calling the API.\n\n'
-		);
+	try {
+		return await complete( {
+			system:
+				'You maintain data for a WordPress plugin. You reply with JSON and ' +
+				'nothing else. You prefer proposing nothing to proposing something ' +
+				'you cannot evidence.',
+			user: prompt(),
+			schemaHint: true,
+		} );
+	} catch ( error ) {
+		process.stderr.write( `\n${ error.message }\n\n` );
 		process.exit( 1 );
 	}
-
-	const response = await fetch( API, {
-		method: 'POST',
-		headers: {
-			'content-type': 'application/json',
-			'x-api-key': key,
-			'anthropic-version': '2023-06-01',
-		},
-		body: JSON.stringify( {
-			model: process.env.ANALYZE_MODEL || DEFAULT_MODEL,
-			max_tokens: 8000,
-			messages: [ { role: 'user', content: prompt() } ],
-		} ),
-		signal: AbortSignal.timeout( 180000 ),
-	} );
-
-	if ( ! response.ok ) {
-		throw new Error( `the API answered HTTP ${ response.status }` );
-	}
-
-	const body = await response.json();
-
-	return ( body.content ?? [] )
-		.filter( ( block ) => 'text' === block.type )
-		.map( ( block ) => block.text )
-		.join( '' );
 };
 
 /* ------------------------------------------------------------------- run */
 
-const reply = fixture
-	? fs.readFileSync( fixture, 'utf8' )
+const answered = fixture
+	? { text: fs.readFileSync( fixture, 'utf8' ), provider: 'fixture', model: path.basename( fixture ) }
 	: await ask();
+
+const reply = answered.text;
 
 let returned = [];
 
@@ -314,7 +301,8 @@ fs.writeFileSync(
 	outPath,
 	`${ JSON.stringify(
 		{
-			model: fixture ? `fixture:${ path.basename( fixture ) }` : process.env.ANALYZE_MODEL || DEFAULT_MODEL,
+			provider: answered.provider,
+			model: answered.model,
 			returned: returned.length,
 			accepted: accepted.length,
 			rejected,
@@ -326,8 +314,8 @@ fs.writeFileSync(
 );
 
 process.stdout.write(
-	`model returned ${ returned.length }, accepted ${ accepted.length }, ` +
-		`rejected ${ rejected.length } -> ${ outPath }\n`
+	`${ answered.provider }/${ answered.model } returned ${ returned.length }, ` +
+		`accepted ${ accepted.length }, rejected ${ rejected.length } -> ${ outPath }\n`
 );
 
 for ( const entry of rejected ) {
