@@ -17,6 +17,9 @@ This repository is **data**. There is no code here that runs on a site.
 | `schemas/` | The JSON Schemas every document above is validated against |
 | `manifest.json` | Every file, its hash, and the tag they were released as |
 | `AUTHORING.md` | How to add or change a tweak, and what a review checks |
+| `state/released.json` | The last signed release, so `main` says what it is |
+| `docs/PIPELINE.md` | The automated proposal pipeline, and its limits |
+| `docs/DECISIONS.md` | Decisions about this repository |
 
 ## How the plugin uses it
 
@@ -28,16 +31,52 @@ anything.
 Fetching a newer registry is optional, off by default, and reached only by
 running a WP-CLI command. Downloaded registries are refused unless signed.
 
-Releases are signed now. `manifest.sig` is a detached Ed25519 signature over
+Releases are signed. `manifest.sig` is a detached Ed25519 signature over
 `manifest.json`, made with a private key held offline; the public half is
-compiled into the plugin. CI verifies the committed signature on every push, so
-a manifest edited without re-signing fails here. Verify it yourself with:
+compiled into the plugin. Verify it yourself with:
 
 ```
 openssl pkeyutl -verify -rawin -pubin -inkey registry-signing.pub     -in manifest.json -sigfile manifest.sig
 ```
 
 or `node tests/signature.mjs`, which needs nothing installed.
+
+## What is released, and what is merged
+
+**`main` carries content. A tag carries a signature.**
+
+This repository accepts automated proposals (see `docs/PIPELINE.md`), and
+nothing automated has a signing key. So `main` can be ahead of the last signed
+release, and between releases its `manifest.json` is accurate but unsigned.
+
+`state/released.json` says which release is the current one:
+
+```
+node -p "require('./state/released.json').tag"
+```
+
+**Sites are unaffected by any of this.** The plugin fetches
+`<base>/<tag>/<path>` — a tag, never `main` — and a tag cannot be pushed without
+a valid signature, which the release gate checks when it arrives. A site pointed
+at `main` would be refused rather than served something unverified.
+
+The reasoning, the fail-closed property and what it costs are in
+`docs/DECISIONS.md` D-0067.
+
+## Automated proposals
+
+A scheduled pipeline watches WordPress and the plugins this registry has rules
+about, scans a real site at the new versions, runs the plugin's compatibility
+matrix, reads the support forums, and opens a pull request when it finds
+something — with every proposal citing evidence a machine actually observed.
+
+Proposals that are **strictly more cautious** than the current data — a raised
+risk band, a new incompatibility — can merge themselves once CI is green.
+Everything else waits for a person, and two things always do: a tweak's
+`handler`, which names code in the plugin, and a profile's `include_risk`.
+
+It signs nothing and releases nothing. `docs/PIPELINE.md` has every stage, what
+it can see, and what it cannot.
 
 ## Versions
 

@@ -1,0 +1,91 @@
+name: Release watch
+
+# Cheap, frequent, and does almost nothing.
+#
+# Every six hours this asks wordpress.org whether WordPress or one of the
+# watched plugins has released a version the pipeline has not looked at, and
+# dispatches `registry-update.yml` when the answer is yes. That run is
+# expensive — it stands up WordPress at several versions and scans it — so it is
+# not on a timer of its own. This is the timer.
+#
+# ## Why the split is not just about cost
+#
+# A weekly heavy run would investigate a release up to seven days after it
+# happened, and a release that breaks a tweak is worth knowing about sooner. A
+# heavy run every six hours would spend most of its life confirming that
+# nothing changed. Watching cheaply and acting rarely is how it gets both.
+#
+# The weekly schedule on registry-update.yml stays anyway, as a floor: if this
+# watcher is broken, wrong or rate-limited for a week, the pipeline still runs
+# once and its own observation stage finds what the watcher missed.
+#
+# ## A watcher that cannot see says so
+#
+# `pipeline/watch.mjs` exits non-zero when an API does not answer, and this job
+# is allowed to fail for that reason. An unanswered query must never be folded
+# into "nothing changed": that is the difference between a watcher that is
+# quiet because there is no news and one that is quiet because it is broken.
+#
+# It still dispatches when it found something new *and* something else was
+# unreachable, because a partial answer is worth acting on.
+
+on:
+  schedule:
+    # Every six hours, offset off the hour. On the hour is when everybody
+    # else's cron runs and wordpress.org's API is busiest.
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: release-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    name: Anything new?
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      # `continue-on-error` so an unreachable API still lets the dispatch
+      # decision below run — the script has already decided, and a partial
+      # answer is worth acting on. The step's outcome is surfaced afterwards so
+      # the failure is not lost.
+      - name: Ask wordpress.org
+        id: watch
+        continue-on-error: true
+        run: node pipeline/watch.mjs --github
+
+      - name: Start an update run
+        if: steps.watch.outputs.dispatch == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "New versions: ${{ steps.watch.outputs.summary }}"
+          gh workflow run registry-update.yml \
+            --repo "${{ github.repository }}" \
+            --field reason="release-watch: ${{ steps.watch.outputs.summary }}"
+
+      - name: Nothing new
+        if: steps.watch.outputs.dispatch != 'true'
+        run: echo "Nothing newer than state/versions.json."
+
+      # Last, so that a dispatch happens either way, and loud, so that a
+      # watcher which has quietly stopped being able to see anything shows up
+      # as a red run rather than as a long series of quiet ones.
+      - name: An API that did not answer is a failure
+        if: steps.watch.outcome == 'failure'
+        run: |
+          echo "::error::At least one version could not be checked. See the step above."
+          echo "::error::A watcher that cannot see must not read as a watcher that saw nothing."
+          exit 1

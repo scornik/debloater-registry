@@ -1,0 +1,52 @@
+{
+    "_comment": [
+        "The versions the pipeline has already looked at.",
+        "",
+        "release-watch.yml compares what wordpress.org reports against this file",
+        "and dispatches registry-update.yml when something is newer. The update",
+        "run writes the versions it observed back here, so the same release is",
+        "not investigated twice.",
+        "",
+        "Recorded 2026-09-07 from api.wordpress.org, not by hand. A version",
+        "somebody typed is a version that eventually disagrees with the site's.",
+        "",
+        "watch:false means the pipeline cannot see this plugin's releases and",
+        "says so, rather than treating an unanswerable query as 'nothing new'.",
+        "docs/PIPELINE.md explains what that costs."
+    ],
+    "checked_at": "2026-09-07T00:00:00Z",
+    "core": {
+        "wordpress": {
+            "version": "7.1",
+            "watch": true,
+            "source": "https://api.wordpress.org/core/version-check/1.7/"
+        }
+    },
+    "plugins": {
+        "woocommerce": {
+            "version": "11.1.0",
+            "watch": true
+        },
+        "elementor": {
+            "version": "4.2.4",
+            "watch": true
+        },
+        "elementor-pro": {
+            "version": null,
+            "watch": false,
+            "why": "Commercial, and not on wordpress.org: the plugin-information API answers 404 for this slug. Its releases are served from Elementor's own update endpoint, which needs a licence key the pipeline does not have and should not hold. Changes to it are found by the observe stage when somebody updates the fixture stack by hand, not by watching."
+        },
+        "contact-form-7": {
+            "version": "6.1.7",
+            "watch": true
+        },
+        "seo-by-rank-math": {
+            "version": "1.0.277.2",
+            "watch": true
+        },
+        "litespeed-cache": {
+            "version": "7.9.1",
+            "watch": true
+        }
+    }
+}

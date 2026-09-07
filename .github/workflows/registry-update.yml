@@ -1,0 +1,409 @@
+name: Registry update
+
+# The pipeline: observe a real site at the new versions, verify the matrix still
+# holds, listen to what people are reporting, ask a model to interpret all
+# three, and open a pull request that cites its sources.
+#
+# docs/PIPELINE.md describes every stage, its inputs and its fail rule. The
+# short version of the rule: a stage that could not do its job fails, and never
+# writes an empty artifact saying it found nothing. "Nothing was found" and
+# "nothing was looked at" produce the same file otherwise, and everything
+# downstream believes the first one.
+#
+# ## What this can and cannot do
+#
+# It can change data in tweaks/, compatibility/ and profiles/, and it can merge
+# a change that is strictly more cautious than what is there now.
+#
+# It cannot sign anything. `main` carries content; a tag carries a signature
+# (docs/DECISIONS.md D-0067), the private key is offline, and no job here has
+# access to one. So the worst outcome of every failure below, compounded, is
+# that this repository's main branch is wrong -- and no site has been offered
+# it, because a site only ever fetches a tag.
+#
+# ## Cost
+#
+# The observe and verify jobs stand WordPress up and scan it, so this runs
+# weekly rather than hourly. release-watch.yml dispatches it early when a
+# version actually moves; the weekly schedule is the floor that runs even if
+# the watcher is broken.
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Why this run was started'
+        required: false
+        default: 'manual'
+      dry_run:
+        description: 'Run every stage and open no pull request'
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: registry-update
+  cancel-in-progress: false
+
+env:
+  # The stacks scanned: a clean install, and the seeded fixture with the
+  # watched plugins active. A rule about WooCommerce cannot be written from a
+  # site that does not have it, and a rule about WordPress cannot be written
+  # from a site with six plugins muddying the facts.
+  STACKS: 'clean fixture'
+
+jobs:
+  # ---------------------------------------------------------------- stage 1
+  observe:
+    name: Observe
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: registry
+
+      # Public, so no token. This is what D-0045 could not do when it was
+      # written: the plugin was private, and a checkout in a public workflow
+      # would have needed a credential in the one place it must never be.
+      - uses: actions/checkout@v5
+        with:
+          repository: scornik/debloater
+          path: debloater
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache-dependency-path: debloater/package-lock.json
+          cache: npm
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: json, sodium
+          coverage: none
+
+      - name: Install the plugin
+        working-directory: debloater
+        run: |
+          npm ci
+          composer install --no-interaction --no-progress
+          npm run build
+
+      # The registry under test is this repository's, not the snapshot the
+      # plugin vendors. Scanning against the vendored copy would compare the
+      # new versions to rules nobody here has changed.
+      - name: Use this registry
+        run: |
+          rm -rf debloater/registry
+          cp -r registry debloater/registry
+          rm -rf debloater/registry/.git debloater/registry/pipeline \
+                 debloater/registry/tests debloater/registry/state \
+                 debloater/registry/baselines debloater/registry/docs
+
+      - name: Start WordPress
+        working-directory: debloater
+        run: |
+          npx wp-env start --update
+          npx wp-env run cli wp plugin activate debloater
+
+      - name: Scan a clean install
+        working-directory: debloater
+        run: npx wp-env run cli wp debloater scan --json > ../registry/scan-clean.json
+
+      - name: Seed the fixture stack and scan again
+        working-directory: debloater
+        run: |
+          npx wp-env run cli wp eval-file tools/seed-fixture.php
+          npx wp-env run cli wp debloater scan --json > ../registry/scan-fixture.json
+
+      - name: Diff against the baselines
+        working-directory: registry
+        run: |
+          node pipeline/observe.mjs --stack=clean --facts=scan-clean.json --out=candidates-clean.json
+          node pipeline/observe.mjs --stack=fixture --facts=scan-fixture.json --out=candidates-fixture.json
+          node -e "
+            const fs = require('fs');
+            const merge = ['candidates-clean.json','candidates-fixture.json']
+              .map((f) => JSON.parse(fs.readFileSync(f,'utf8')));
+            fs.writeFileSync('candidates.json', JSON.stringify({
+              stacks: merge.map((m) => m.stack),
+              first_run: merge.some((m) => m.first_run),
+              candidates: merge.flatMap((m) => m.candidates),
+            }, null, 4) + '\n');
+          "
+
+      - name: Stop WordPress
+        if: always()
+        working-directory: debloater
+        run: npx wp-env stop
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: candidates
+          path: |
+            registry/candidates.json
+            registry/baselines/
+
+  # ---------------------------------------------------------------- stage 2
+  verify:
+    name: Verify
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: registry
+
+      - uses: actions/checkout@v5
+        with:
+          repository: scornik/debloater
+          path: debloater
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache-dependency-path: debloater/package-lock.json
+          cache: npm
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: json, sodium
+          coverage: none
+
+      - name: Install the plugin
+        working-directory: debloater
+        run: |
+          npm ci
+          composer install --no-interaction --no-progress
+          npm run test:integration:setup
+
+      - name: Use this registry
+        run: |
+          rm -rf debloater/registry
+          cp -r registry debloater/registry
+          rm -rf debloater/registry/.git debloater/registry/pipeline \
+                 debloater/registry/tests debloater/registry/state \
+                 debloater/registry/baselines debloater/registry/docs
+
+      - name: Run the matrix at the new versions
+        working-directory: debloater
+        run: |
+          npx wp-env start --update
+          npx wp-env run cli wp plugin activate debloater
+          npx wp-env run tests-cli --env-cwd=wp-content/plugins/debloater \
+            php tools/phpunit-9.phar -c phpunit-wp.xml.dist \
+            --log-junit ../../../../matrix.xml || true
+          cp "$(npx wp-env install-path)/matrix.xml" ../registry/matrix.xml
+
+      - name: Collect the failures
+        working-directory: registry
+        run: node pipeline/verify.mjs --junit=matrix.xml --out=regressions.json
+
+      - name: Stop WordPress
+        if: always()
+        working-directory: debloater
+        run: npx wp-env stop
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: regressions
+          path: registry/regressions.json
+
+  # ---------------------------------------------------------------- stage 3
+  listen:
+    name: Listen
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - run: node pipeline/listen.mjs --out=signals.json --days=14
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signals
+          path: signals.json
+
+  # ---------------------------------------------------------------- stage 4
+  analyze:
+    name: Analyze
+    if: github.event_name != 'push'
+    needs: [ observe, verify, listen ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: candidates
+          path: .
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: regressions
+      - uses: actions/download-artifact@v4
+        with:
+          name: signals
+
+      # Every artifact must be here. `analyze.mjs` refuses a named file that is
+      # absent, so this is belt and braces -- but the message here says which
+      # stage failed, and the one from the script says only that a file is
+      # missing.
+      - name: Every stage produced its artifact
+        run: |
+          for required in candidates.json regressions.json signals.json; do
+            if [ ! -f "$required" ]; then
+              echo "::error::$required is missing: the stage that writes it did not finish."
+              exit 1
+            fi
+          done
+
+      - name: Ask the model
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANALYZE_MODEL: ${{ vars.ANALYZE_MODEL }}
+        run: |
+          node pipeline/analyze.mjs \
+            --candidates=candidates.json \
+            --regressions=regressions.json \
+            --signals=signals.json \
+            --out=proposals.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: proposals
+          path: proposals.json
+
+  # ---------------------------------------------------------------- stage 5
+  propose:
+    name: Propose
+    if: github.event_name != 'push'
+    needs: analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # A full history, because the branch is pushed and a shallow clone
+          # cannot be.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: candidates
+          path: .
+      - uses: actions/download-artifact@v4
+        with:
+          name: regressions
+      - uses: actions/download-artifact@v4
+        with:
+          name: signals
+      - uses: actions/download-artifact@v4
+        with:
+          name: proposals
+
+      - name: Open the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name 'debloater-registry pipeline'
+          git config user.email 'noreply@github.com'
+
+          node pipeline/propose.mjs \
+            --proposals=proposals.json \
+            --candidates=candidates.json \
+            --regressions=regressions.json \
+            --signals=signals.json \
+            ${{ inputs.dry_run && '--dry-run' || '' }}
+
+  # ---------------------------------------------------------------- stage 6
+  #
+  # A draft release, and only a draft.
+  #
+  # It carries the manifest and a note saying what is in it, so that cutting a
+  # real release is a person opening the draft, running `make registry-release`
+  # locally with the offline key, and pushing the tag. The release gate in
+  # registry.yml then verifies the signature, the tag and state/released.json.
+  #
+  # Nothing here signs, tags or publishes. A draft is not visible to anyone
+  # without write access and is not served to any site.
+  release:
+    name: Draft release
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      # The manifest must already describe what is on disk. If it does not,
+      # something merged without regenerating it, and that is a broken main
+      # rather than something to fix silently here.
+      - name: The manifest is current
+        run: node pipeline/build-manifest.mjs --check
+
+      - name: What is unreleased
+        id: state
+        run: |
+          released=$(node -p "require('./state/released.json').tag")
+          echo "released=$released" >> "$GITHUB_OUTPUT"
+          echo "Last signed release: $released"
+          echo "Commits since then:"
+          git log --oneline "$released..HEAD" 2>/dev/null || echo "  (tag not present locally)"
+
+      - name: Draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes=$(mktemp)
+          {
+            echo "Content on main that has not been signed."
+            echo
+            echo "Last signed release: ${{ steps.state.outputs.released }}"
+            echo
+            echo "To cut this release, on a machine holding the offline key:"
+            echo
+            echo '    make registry-release TAG=vX.Y.Z'
+            echo
+            echo "That regenerates the manifest, signs it, records it in"
+            echo "state/released.json and prints the commands to push. CI verifies"
+            echo "all three when the tag arrives; see docs/DECISIONS.md D-0067."
+          } > "$notes"
+
+          # One rolling draft rather than one per merge. `gh release edit`
+          # fails when there is no draft, so create is attempted second.
+          gh release edit unreleased --notes-file "$notes" --draft 2>/dev/null \
+            || gh release create unreleased --draft --notes-file "$notes" \
+                 --title 'Unreleased registry content'

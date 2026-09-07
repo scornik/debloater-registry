@@ -21,6 +21,8 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+
+import { registryFiles } from '../pipeline/lib/manifest.mjs';
 import process from 'node:process';
 import url from 'node:url';
 
@@ -38,29 +40,23 @@ function fail( message ) {
 }
 
 /**
- * Every JSON file in the repository, as paths relative to its root.
+ * Every JSON file the registry actually publishes.
+ *
+ * Imported rather than re-implemented. `pipeline/lib/manifest.mjs` decides what
+ * goes *into* the manifest; this file checks what is *in* it. Two answers to
+ * "which files are registry data" is two lists to keep in step, and the day
+ * they disagree is the day a correct manifest fails this check — which is
+ * exactly what happened when the pipeline added state/released.json and this
+ * file, walking every .json in the repository, reported it as an undeclared
+ * document.
+ *
+ * The exclusions live with the builder because the builder is what a release
+ * depends on. This follows it.
  *
  * @return {string[]} Sorted relative paths.
  */
 function documents() {
-	const found = [];
-
-	for ( const entry of fs.readdirSync( ROOT, { withFileTypes: true, recursive: true } ) ) {
-		if ( ! entry.isFile() || ! entry.name.endsWith( '.json' ) ) {
-			continue;
-		}
-
-		const parent = path.relative( ROOT, entry.parentPath || entry.path );
-		const relative = path.join( parent, entry.name ).split( path.sep ).join( '/' );
-
-		if ( relative.startsWith( '.github/' ) || relative.startsWith( 'node_modules/' ) ) {
-			continue;
-		}
-
-		found.push( relative );
-	}
-
-	return found.sort();
+	return registryFiles( ROOT );
 }
 
 const files = documents();
@@ -81,13 +77,22 @@ for ( const relative of files ) {
 }
 
 // 2. The manifest describes exactly what is here.
-const manifest = parsed.get( 'manifest.json' );
+//
+// Read directly rather than from `parsed`, because registryFiles() lists what
+// the manifest *covers* and the manifest is not one of those files.
+let manifest = null;
+
+try {
+	manifest = JSON.parse( fs.readFileSync( path.join( ROOT, 'manifest.json' ), 'utf8' ) );
+} catch ( error ) {
+	fail( `manifest.json could not be read: ${ error.message }` );
+}
 
 if ( ! manifest ) {
 	fail( 'manifest.json is missing, so nothing can say which version this is.' );
 } else {
 	const recorded = Object.keys( manifest.files ?? {} ).sort();
-	const present = files.filter( ( f ) => 'manifest.json' !== f && 'package.json' !== f ).sort();
+	const present = [ ...files ].sort();
 
 	for ( const relative of present ) {
 		if ( ! recorded.includes( relative ) ) {

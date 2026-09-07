@@ -1,0 +1,22 @@
+{
+    "_comment": [
+        "What is released, as opposed to what is merged.",
+        "",
+        "main carries content; a tag carries a signature (docs/DECISIONS.md",
+        "D-0067). Between releases this repository can hold changes no site has",
+        "been offered, because a site only ever fetches a tag and only a person",
+        "with the offline key can make one.",
+        "",
+        "So this file exists to stop main lying by omission. It names the last",
+        "signed tag, when it was made, and the manifest it covers. README.md",
+        "reads from it, the release gate checks the pushed tag against it, and",
+        "'make registry-release' is what writes it.",
+        "",
+        "manifest_sha256 is the sha256 of manifest.json's bytes at that tag --",
+        "the file the signature was made over, not a hash of the files it lists."
+    ],
+    "tag": "v0.1.0",
+    "released_at": "2026-09-05T10:15:50Z",
+    "manifest_sha256": "ca6e048a901e9b9beac29f74a3c87fc48dd2ce2b58733f1b10ab8bf1360546e6",
+    "signed": true
+}

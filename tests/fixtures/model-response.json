@@ -1,0 +1,291 @@
+{
+  "proposals": [
+    {
+      "file": "tweaks/core.disable_emojis.json",
+      "op": "modify",
+      "why": "The probe matrix failed on the cart page at the new WooCommerce, so treat this as riskier until somebody looks.",
+      "direction": "safer",
+      "evidence": [
+        {
+          "tweak": "core.disable_emojis"
+        }
+      ],
+      "after": {
+        "id": "core.disable_emojis",
+        "schema_version": 1,
+        "title": "Stop loading the emoji script",
+        "category": "wordpress",
+        "kind": "config",
+        "risk": "medium",
+        "base_confidence": 0.96,
+        "reversible": true,
+        "destructive": false,
+        "handler": "runtime-handlers/core-disable-emojis.php",
+        "params": {},
+        "description": "Removes the emoji detection script, its inline styles and its DNS prefetch from every page. Emoji characters still display; only the polyfill that replaces them with images on browsers that do not need it stops loading.",
+        "breaks": [
+          "Browsers with no emoji font of their own show the system fallback glyph instead of a WordPress image"
+        ],
+        "requires": [],
+        "conflicts": [],
+        "conditions": [],
+        "measurements": [
+          "frontend.requests",
+          "frontend.scripts.count",
+          "frontend.head_bytes"
+        ],
+        "probes": [
+          "home",
+          "content_page",
+          "admin"
+        ],
+        "since_wp": "4.2",
+        "docs_url": null
+      }
+    },
+    {
+      "file": "tweaks/admin.suppress_promo_notices.json",
+      "op": "modify",
+      "why": "Claims to be safer while lowering the risk band. The classifier decides, not the claim.",
+      "direction": "safer",
+      "evidence": [
+        {
+          "fact_key": "cron.hooks.woocommerce_cleanup"
+        }
+      ],
+      "after": {
+        "id": "admin.suppress_promo_notices",
+        "schema_version": 1,
+        "title": "Hide admin notices from plugins you choose",
+        "category": "admin",
+        "kind": "config",
+        "risk": "safe",
+        "base_confidence": 0.9,
+        "reversible": true,
+        "destructive": false,
+        "handler": "runtime-handlers/admin-suppress-promo-notices.php",
+        "params": {
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+              "enum": [
+                "elementor",
+                "elementor-pro",
+                "jetpack",
+                "seo-by-rank-math",
+                "seo-by-rank-math-pro",
+                "woocommerce",
+                "wordpress-seo",
+                "wordpress-seo-premium"
+              ]
+            },
+            "default": [],
+            "description": "Plugin directory slugs whose admin notices are hidden. Only slugs on the allowlist in registry/admin-notices.json are accepted, and a callback is hidden only when its code lives inside that plugin."
+          }
+        },
+        "description": "Hides the admin notice area output of the plugins you select. It does not tell marketing apart from warnings, because these plugins print both from the same hook and nothing reliably separates them — so it hides all of it, per plugin, for a person who has read that sentence. Nothing is uninstalled or disabled; the notices come back the moment you unselect this.",
+        "breaks": [
+          "Operational notices from the selected plugins are hidden too, including ones about a pending database update or an expiring licence",
+          "A plugin whose only way of reporting a problem is an admin notice will report nothing"
+        ],
+        "requires": [],
+        "conflicts": [],
+        "conditions": [],
+        "measurements": [
+          "admin.notices"
+        ],
+        "probes": [
+          "admin",
+          "home"
+        ],
+        "since_wp": "3.1",
+        "docs_url": null
+      }
+    },
+    {
+      "file": "tweaks/core.remove_rsd.json",
+      "op": "modify",
+      "why": "Points an existing tweak at different code. Never automatic, whatever else is true.",
+      "direction": "safer",
+      "evidence": [
+        {
+          "fact_key": "assets.handles.home"
+        }
+      ],
+      "after": {
+        "id": "core.remove_rsd",
+        "schema_version": 1,
+        "title": "Remove the Really Simple Discovery link",
+        "category": "wordpress",
+        "kind": "config",
+        "risk": "medium",
+        "base_confidence": 0.98,
+        "reversible": true,
+        "destructive": false,
+        "handler": "runtime-handlers/somewhere-else.php",
+        "params": {},
+        "description": "Stops the page head advertising the XML-RPC endpoint to blog-client software. XML-RPC itself keeps working.",
+        "breaks": [
+          "Desktop blogging clients that discover the site automatically will need the XML-RPC URL entered by hand"
+        ],
+        "requires": [],
+        "conflicts": [],
+        "conditions": [],
+        "measurements": [
+          "frontend.head_bytes"
+        ],
+        "probes": [
+          "home",
+          "content_page"
+        ],
+        "since_wp": "2.3",
+        "docs_url": null
+      }
+    },
+    {
+      "file": "tweaks/core.remove_shortlink.json",
+      "op": "modify",
+      "why": "Cites a fact nothing scanned. The evidence gate must drop it.",
+      "direction": "safer",
+      "evidence": [
+        {
+          "fact_key": "admin.notices.a_thing_nobody_observed"
+        }
+      ],
+      "after": {
+        "id": "core.remove_shortlink",
+        "schema_version": 1,
+        "title": "Remove the shortlink tag and header",
+        "category": "wordpress",
+        "kind": "config",
+        "risk": "medium",
+        "base_confidence": 0.97,
+        "reversible": true,
+        "destructive": false,
+        "handler": "runtime-handlers/core-remove-shortlink.php",
+        "params": {},
+        "description": "Stops WordPress emitting the rel=\"shortlink\" tag in the head and the matching Link: HTTP header, both of which expose the ?p=<id> form of every URL.",
+        "breaks": [
+          "Anything relying on automatic shortlink discovery, such as some sharing buttons, will fall back to the full URL"
+        ],
+        "requires": [],
+        "conflicts": [],
+        "conditions": [],
+        "measurements": [
+          "frontend.head_bytes"
+        ],
+        "probes": [
+          "home",
+          "content_page"
+        ],
+        "since_wp": "3.0",
+        "docs_url": null
+      }
+    },
+    {
+      "file": "tweaks/core.disable_embeds.json",
+      "op": "modify",
+      "why": "No evidence at all. Must be dropped.",
+      "direction": "safer",
+      "after": {
+        "id": "core.disable_embeds",
+        "schema_version": 1,
+        "title": "Stop offering your posts for embedding",
+        "category": "wordpress",
+        "kind": "config",
+        "risk": "medium",
+        "base_confidence": 0.94,
+        "reversible": true,
+        "destructive": false,
+        "handler": "runtime-handlers/core-disable-embeds.php",
+        "params": {},
+        "description": "Removes the oEmbed discovery tags, the wp-embed.js script and the /embed/ endpoint, which exist so that other sites can embed your posts. Embedding other people's content in your own posts is unaffected.",
+        "breaks": [
+          "Other WordPress sites can no longer embed your posts as a live preview card; links to them still work normally"
+        ],
+        "requires": [],
+        "conflicts": [],
+        "conditions": [],
+        "measurements": [
+          "frontend.requests",
+          "frontend.scripts.count",
+          "frontend.head_bytes"
+        ],
+        "probes": [
+          "home",
+          "content_page",
+          "rest"
+        ],
+        "since_wp": "4.4",
+        "docs_url": null
+      }
+    },
+    {
+      "file": ".github/workflows/registry-update.yml",
+      "op": "modify",
+      "why": "Proposing a change to the pipeline's own guards. Must be dropped.",
+      "direction": "safer",
+      "evidence": [
+        {
+          "tweak": "core.disable_emojis"
+        }
+      ],
+      "after": {
+        "anything": true
+      }
+    },
+    {
+      "file": "tweaks/core.heartbeat_interval.json",
+      "op": "modify",
+      "why": "Invents a field the schema does not allow. The schema check must drop it.",
+      "direction": "safer",
+      "evidence": [
+        {
+          "tweak": "core.disable_emojis"
+        }
+      ],
+      "after": {
+        "id": "core.heartbeat_interval",
+        "schema_version": 1,
+        "title": "Slow down Heartbeat polling",
+        "category": "wordpress",
+        "kind": "config",
+        "risk": "low",
+        "base_confidence": 0.95,
+        "reversible": true,
+        "destructive": false,
+        "handler": "runtime-handlers/core-heartbeat-interval.php",
+        "params": {
+          "interval": {
+            "type": "integer",
+            "minimum": 15,
+            "maximum": 120,
+            "default": 60,
+            "description": "Seconds between Heartbeat requests. WordPress uses 15 in the admin by default."
+          }
+        },
+        "description": "Changes how often the admin sends its background Heartbeat request. Heartbeat is not switched off: autosave, post locking and session expiry keep working, just on a longer cycle.",
+        "breaks": [
+          "Post-lock notices take longer to appear when several people edit the same post",
+          "Autosave runs less often, so an unsaved draft can lose more work in a crash"
+        ],
+        "requires": [],
+        "conflicts": [],
+        "conditions": [],
+        "measurements": [
+          "admin_ajax_requests_per_hour"
+        ],
+        "probes": [
+          "home",
+          "admin",
+          "rest"
+        ],
+        "since_wp": "3.6",
+        "docs_url": null,
+        "auto_apply_without_asking": true
+      }
+    }
+  ]
+}
