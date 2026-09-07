@@ -115,17 +115,46 @@ jobs:
         working-directory: debloater
         run: |
           npx wp-env start --update
-          npx wp-env run cli wp plugin activate debloater
+          npx wp-env run cli --env-cwd=wp-content/plugins/debloater \
+            wp plugin activate debloater
 
+      # The redirect happens *inside* the container, into the plugin directory,
+      # which is mapped to this checkout. Redirecting on the host would capture
+      # wp-env's own progress banner along with the JSON and hand the observe
+      # stage a file that does not parse.
+      #
+      # --env-cwd is not optional either. Without it the command runs from the
+      # WordPress root, where tools/seed-fixture.php does not exist -- which is
+      # exactly how this failed the first time it ran on a runner.
       - name: Scan a clean install
         working-directory: debloater
-        run: npx wp-env run cli wp debloater scan --json > ../registry/scan-clean.json
+        run: |
+          npx wp-env run cli --env-cwd=wp-content/plugins/debloater \
+            sh -c 'wp debloater scan --json > scan-clean.json'
+          mv scan-clean.json ../registry/scan-clean.json
 
       - name: Seed the fixture stack and scan again
         working-directory: debloater
         run: |
-          npx wp-env run cli wp eval-file tools/seed-fixture.php
-          npx wp-env run cli wp debloater scan --json > ../registry/scan-fixture.json
+          npx wp-env run cli --env-cwd=wp-content/plugins/debloater \
+            wp eval-file tools/seed-fixture.php
+          npx wp-env run cli --env-cwd=wp-content/plugins/debloater \
+            sh -c 'wp debloater scan --json > scan-fixture.json'
+          mv scan-fixture.json ../registry/scan-fixture.json
+
+      # A scan that did not produce JSON is a failed scan. Caught here rather
+      # than three steps later as a parse error about a file nobody can see.
+      - name: Both scans are readable
+        working-directory: registry
+        run: |
+          for scan in scan-clean.json scan-fixture.json; do
+            node -e "
+              const d = require('./$scan');
+              const n = Object.keys(d.facts ?? {}).length;
+              if (n < 10) { throw new Error('$scan has only ' + n + ' facts'); }
+              console.log('$scan: ' + n + ' facts');
+            "
+          done
 
       - name: Diff against the baselines
         working-directory: registry
@@ -199,15 +228,31 @@ jobs:
                  debloater/registry/tests debloater/registry/state \
                  debloater/registry/baselines debloater/registry/docs
 
+      # The report is written into the plugin directory inside the container,
+      # which is this checkout, so it can simply be moved. The first version
+      # wrote it to a relative path four levels up and then looked for it under
+      # `wp-env install-path`, where it was not.
+      #
+      # `|| true` because PHPUnit exits non-zero when tests fail, and failing
+      # tests are what this stage is here to collect. The report existing is
+      # what decides whether the stage worked, and verify.mjs treats a missing
+      # one as a failure rather than as an absence of regressions.
       - name: Run the matrix at the new versions
         working-directory: debloater
         run: |
           npx wp-env start --update
-          npx wp-env run cli wp plugin activate debloater
+          npx wp-env run cli --env-cwd=wp-content/plugins/debloater \
+            wp plugin activate debloater
           npx wp-env run tests-cli --env-cwd=wp-content/plugins/debloater \
             php tools/phpunit-9.phar -c phpunit-wp.xml.dist \
-            --log-junit ../../../../matrix.xml || true
-          cp "$(npx wp-env install-path)/matrix.xml" ../registry/matrix.xml
+            --log-junit matrix.xml || true
+
+          if [ ! -f matrix.xml ]; then
+            echo "::error::The matrix produced no report. That is a failed run, not a passing one."
+            exit 1
+          fi
+
+          mv matrix.xml ../registry/matrix.xml
 
       - name: Collect the failures
         working-directory: registry
