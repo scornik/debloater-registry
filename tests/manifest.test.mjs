@@ -78,6 +78,58 @@ test( 'the pipeline, its tests and its state are not registry data', () => {
 	assert.ok( files.length > 40, `only ${ files.length } documents found` );
 } );
 
+test( 'a run\u2019s own artifacts never become registry data', () => {
+	// The propose job downloads these into the repository root and then
+	// regenerates the manifest. If they were treated as documents, a released
+	// registry would instruct every site to fetch one run's observations as
+	// though they were rules.
+	//
+	// Written as a test rather than trusted to the list, because the list is
+	// exactly the kind of thing a new stage adds an output to without noticing.
+	const artifacts = [
+		'candidates.json',
+		'candidates-clean.json',
+		'candidates-fixture.json',
+		'regressions.json',
+		'signals.json',
+		'proposals.json',
+		'scan-clean.json',
+		'scan-fixture.json',
+	];
+
+	const written = [];
+
+	try {
+		for ( const name of artifacts ) {
+			const full = path.join( ROOT, name );
+
+			if ( ! fs.existsSync( full ) ) {
+				fs.writeFileSync( full, '{"written":"by a test"}\n' );
+				written.push( full );
+			}
+		}
+
+		const files = registryFiles( ROOT );
+
+		for ( const name of artifacts ) {
+			assert.equal(
+				files.includes( name ),
+				false,
+				`${ name } is a run artifact and must never be in the manifest`
+			);
+		}
+
+		// And the real documents are still there, so this cannot pass by
+		// excluding everything.
+		assert.ok( files.includes( 'admin-notices.json' ) );
+		assert.ok( files.includes( 'host-optimizers.json' ) );
+	} finally {
+		for ( const full of written ) {
+			fs.rmSync( full, { force: true } );
+		}
+	}
+} );
+
 test( 'the file order does not depend on the machine', () => {
 	// PHP sorts with SORT_STRING, a byte-wise comparison. localeCompare orders
 	// some characters differently depending on the runtime's locale, and a

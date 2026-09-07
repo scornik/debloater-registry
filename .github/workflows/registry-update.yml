@@ -172,11 +172,60 @@ jobs:
             }, null, 4) + '\n');
           "
 
+      # Baselines have to survive the run that made them.
+      #
+      # They were uploaded as an artifact and nothing else, which meant every
+      # run recorded a first baseline, emitted zero candidates, and threw the
+      # baseline away with the artifact. The pipeline would have compared
+      # nothing to nothing for ever, weekly, reporting success.
+      #
+      # So they are committed. That is safe in a specific way rather than a
+      # general one: `baselines/` is excluded from the manifest, so nothing here
+      # can reach a site, and a wrong baseline costs one cycle of noticing --
+      # the next run compares against it and reports the difference.
+      #
+      # The guard below refuses to commit anything outside `baselines/`. A job
+      # that can push to main must be unable to push anything else, and that is
+      # a property worth checking rather than intending.
+      - name: Record the baselines
+        if: ${{ ! inputs.dry_run }}
+        working-directory: registry
+        run: |
+          if [ -z "$(git status --porcelain baselines/)" ]; then
+            echo "Baselines unchanged; nothing to record."
+            exit 0
+          fi
+
+          outside=$(git status --porcelain | grep -v ' baselines/' || true)
+
+          if [ -n "$outside" ]; then
+            echo "::error::This job may only commit baselines/, and something else changed:"
+            echo "$outside"
+            exit 1
+          fi
+
+          git config user.name 'debloater-registry pipeline'
+          git config user.email 'noreply@github.com'
+
+          git add baselines/
+          git commit -m "registry: baselines from the $( date -u +%F ) run"
+
+          # Another run may have landed while WordPress was starting. The
+          # concurrency group serialises this workflow, but a person merging a
+          # pull request does not wait for it.
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+          echo "Recorded:"
+          git show --stat --oneline HEAD | head -20
+
       - name: Stop WordPress
         if: always()
         working-directory: debloater
         run: npx wp-env stop
 
+      # Still uploaded, because the artifact is what the analyze job reads.
+      # The commit above is what makes the *next* run able to compare.
       - uses: actions/upload-artifact@v4
         with:
           name: candidates

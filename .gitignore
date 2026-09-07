@@ -1,0 +1,25 @@
+# Artifacts a pipeline run leaves in the checkout.
+#
+# The propose job downloads these into the repository root, so without this
+# they are one `git add -A` from being committed as registry documents. They
+# are also excluded from the manifest by pipeline/lib/manifest.mjs, and a test
+# asserts that -- this file is the second of the two guards, not the only one.
+candidates.json
+candidates-clean.json
+candidates-fixture.json
+regressions.json
+signals.json
+proposals.json
+scan-clean.json
+scan-fixture.json
+matrix.xml
+.pr-body.md
+
+# Never in a public repository, and this repository had no .gitignore at all
+# until the pipeline needed one.
+.env
+.env.*
+*.key
+*.pem
+
+node_modules/

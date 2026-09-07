@@ -59,7 +59,20 @@ const NOT_REGISTRY = [
 ];
 
 /**
- * Files at the root that are documentation or release metadata, not registry data.
+ * Files at the root that are not registry data.
+ *
+ * Two kinds. Documentation and release metadata, which have always been here;
+ * and the artifacts a pipeline run leaves in the checkout, which have not.
+ *
+ * The second kind matters more than it looks. The propose job downloads
+ * `candidates.json`, `regressions.json`, `signals.json` and `proposals.json`
+ * into the repository root and then regenerates the manifest. Without these
+ * lines that manifest lists them as registry documents, hashes them, and
+ * commits them in the pull request -- so a released registry would tell every
+ * site to fetch one run's observations as though they were rules.
+ *
+ * It did not happen because the first run had nothing to propose. The first run
+ * that proposed anything would have shipped it.
  */
 const NOT_REGISTRY_FILES = [
 	'manifest.json',
@@ -70,6 +83,16 @@ const NOT_REGISTRY_FILES = [
 	'AUTHORING.md',
 	'.gitattributes',
 	'.gitignore',
+
+	// A pipeline run's own artifacts. Never registry data.
+	'candidates.json',
+	'candidates-clean.json',
+	'candidates-fixture.json',
+	'regressions.json',
+	'signals.json',
+	'proposals.json',
+	'scan-clean.json',
+	'scan-fixture.json',
 ];
 
 /**
