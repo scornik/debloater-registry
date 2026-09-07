@@ -25,7 +25,28 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { buildManifest, checkManifest, serialise } from './lib/manifest.mjs';
+import {
+	buildManifest,
+	checkManifest,
+	serialise,
+	UnrecognisedFile,
+} from './lib/manifest.mjs';
+
+/**
+ * An unclassifiable file is a clear message, not a stack trace.
+ *
+ * The whole point of the allow-list is that somebody has to decide what a new
+ * file is. A stack trace tells them something broke; this tells them what to
+ * do about it.
+ */
+process.on( 'uncaughtException', ( error ) => {
+	if ( ! ( error instanceof UnrecognisedFile ) ) {
+		throw error;
+	}
+
+	process.stderr.write( `\n${ error.message }\n\n` );
+	process.exit( 1 );
+} );
 
 const ROOT = path.resolve( path.dirname( fileURLToPath( import.meta.url ) ), '..' );
 const MANIFEST = path.join( ROOT, 'manifest.json' );

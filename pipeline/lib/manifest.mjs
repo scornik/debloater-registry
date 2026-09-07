@@ -41,16 +41,50 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 /**
- * Directories and files that are part of the repository but not the registry.
+ * The directories that hold registry data.
  *
- * The plugin downloads the registry's *data*. Workflows, tests, the pipeline
- * and documentation are not data a site consumes, and listing them would ask
- * sites to fetch and hash files they have no use for.
+ * An allow-list, and the reason is `docs/DECISIONS.md` D-0057, which argued the
+ * same thing for `.distignore`: **a deny-list ships what it forgets.**
+ *
+ * This function used to walk every `.json` outside an exclusion list, which
+ * made anything new in the tree registry data by default. The propose job then
+ * downloaded `candidates.json` into the repository root, and the manifest
+ * listed one run's observations as rules for every site to fetch. Nothing was
+ * wrong with the exclusion list except that it could not know about a file
+ * nobody had written yet.
+ *
+ * Confirmed against the committed manifest rather than assumed: five
+ * directories and three root files, 58 documents.
  */
-const NOT_REGISTRY = [
+export const REGISTRY_DIRECTORIES = [
+	'compatibility',
+	'detectors',
+	'profiles',
+	'schemas',
+	'tweaks',
+];
+
+/**
+ * Registry documents that live at the root rather than in a directory.
+ */
+export const REGISTRY_ROOT_FILES = [
+	'admin-notices.json',
+	'host-optimizers.json',
+	'plugin-categories.json',
+];
+
+/**
+ * Directories that are part of the repository and are not registry data.
+ *
+ * Named so that a `.json` inside one is *known* not to be a document, rather
+ * than unrecognised. The difference matters: an unrecognised file stops a
+ * build, and these must not.
+ */
+const NON_REGISTRY_DIRECTORIES = [
 	'.git',
 	'.github',
 	'baselines',
+	'dist',
 	'docs',
 	'node_modules',
 	'pipeline',
@@ -59,32 +93,18 @@ const NOT_REGISTRY = [
 ];
 
 /**
- * Files at the root that are not registry data.
+ * Root files that are known, and known not to be registry data.
  *
- * Two kinds. Documentation and release metadata, which have always been here;
- * and the artifacts a pipeline run leaves in the checkout, which have not.
- *
- * The second kind matters more than it looks. The propose job downloads
- * `candidates.json`, `regressions.json`, `signals.json` and `proposals.json`
- * into the repository root and then regenerates the manifest. Without these
- * lines that manifest lists them as registry documents, hashes them, and
- * commits them in the pull request -- so a released registry would tell every
- * site to fetch one run's observations as though they were rules.
- *
- * It did not happen because the first run had nothing to propose. The first run
- * that proposed anything would have shipped it.
+ * Release metadata, packaging, and the artifacts a pipeline run leaves in the
+ * checkout. The propose job downloads four of these into the root before
+ * regenerating the manifest.
  */
-const NOT_REGISTRY_FILES = [
+const NON_REGISTRY_ROOT_FILES = [
 	'manifest.json',
-	'manifest.sig',
 	'package.json',
-	'Makefile',
-	'README.md',
-	'AUTHORING.md',
-	'.gitattributes',
-	'.gitignore',
+	'package-lock.json',
 
-	// A pipeline run's own artifacts. Never registry data.
+	// A pipeline run's own artifacts.
 	'candidates.json',
 	'candidates-clean.json',
 	'candidates-fixture.json',
@@ -96,36 +116,111 @@ const NOT_REGISTRY_FILES = [
 ];
 
 /**
+ * Raised when the tree holds a JSON file this cannot classify.
+ */
+export class UnrecognisedFile extends Error {}
+
+/**
  * Every registry document, as repository-relative paths, byte-sorted.
+ *
+ * Throws on a `.json` that is neither registry data nor a known non-document.
+ * Silence in either direction is what produced the bug this replaces: including
+ * it shipped a run artifact as a rule, and dropping it would hide a real
+ * document from the manifest and therefore from every site.
  *
  * @param {string} root Repository root.
  * @return {string[]} Relative paths.
+ * @throws {UnrecognisedFile} When something in the tree cannot be classified.
  */
 export const registryFiles = ( root ) => {
 	const found = [];
+	const unrecognised = [];
 
-	const walk = ( directory ) => {
-		for ( const entry of fs.readdirSync( directory, { withFileTypes: true } ) ) {
-			const full = path.join( directory, entry.name );
-			const relative = path.relative( root, full ).split( path.sep ).join( '/' );
+	for ( const name of REGISTRY_DIRECTORIES ) {
+		const directory = path.join( root, name );
 
-			if ( entry.isDirectory() ) {
-				if ( ! NOT_REGISTRY.includes( relative ) ) {
+		if ( ! fs.existsSync( directory ) ) {
+			continue;
+		}
+
+		const walk = ( where ) => {
+			for ( const entry of fs.readdirSync( where, { withFileTypes: true } ) ) {
+				const full = path.join( where, entry.name );
+				const relative = path.relative( root, full ).split( path.sep ).join( '/' );
+
+				if ( entry.isDirectory() ) {
 					walk( full );
+
+					continue;
 				}
 
+				if ( relative.endsWith( '.json' ) ) {
+					found.push( relative );
+
+					continue;
+				}
+
+				// A non-JSON file inside a registry directory. Not a document,
+				// and not something to pass over in silence either.
+				unrecognised.push( `${ relative } (not JSON, inside a registry directory)` );
+			}
+		};
+
+		walk( directory );
+	}
+
+	// Now the rest of the tree, looking only for things this cannot account for.
+	const audit = ( where ) => {
+		for ( const entry of fs.readdirSync( where, { withFileTypes: true } ) ) {
+			const full = path.join( where, entry.name );
+			const relative = path.relative( root, full ).split( path.sep ).join( '/' );
+			const top = relative.split( '/' )[ 0 ];
+
+			if ( REGISTRY_DIRECTORIES.includes( top ) || NON_REGISTRY_DIRECTORIES.includes( top ) ) {
 				continue;
 			}
 
-			if ( NOT_REGISTRY_FILES.includes( relative ) || ! relative.endsWith( '.json' ) ) {
+			if ( entry.isDirectory() ) {
+				audit( full );
+
 				continue;
 			}
 
-			found.push( relative );
+			if ( ! relative.endsWith( '.json' ) ) {
+				continue;
+			}
+
+			if (
+				REGISTRY_ROOT_FILES.includes( relative ) ||
+				NON_REGISTRY_ROOT_FILES.includes( relative )
+			) {
+				continue;
+			}
+
+			unrecognised.push( relative );
 		}
 	};
 
-	walk( root );
+	audit( root );
+
+	if ( unrecognised.length > 0 ) {
+		throw new UnrecognisedFile(
+			`This tree holds ${ unrecognised.length } file(s) that are neither registry ` +
+				'data nor known non-documents:\n\n' +
+				unrecognised.map( ( one ) => `  - ${ one }` ).join( '\n' ) +
+				'\n\nAdd it to REGISTRY_ROOT_FILES if a site should fetch it, or to the ' +
+				'non-registry list if not. It is deliberately not possible to leave it ' +
+				'unclassified: including it by default is how a run artifact was once ' +
+				'listed as a rule, and dropping it by default would hide a real document ' +
+				'from every site.'
+	 	);
+	}
+
+	for ( const relative of REGISTRY_ROOT_FILES ) {
+		if ( fs.existsSync( path.join( root, relative ) ) ) {
+			found.push( relative );
+		}
+	}
 
 	// A plain byte-wise sort, matching PHP's sort( $found, SORT_STRING ).
 	// localeCompare would order differently on some machines, and a manifest

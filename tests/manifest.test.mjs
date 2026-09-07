@@ -24,7 +24,10 @@ import {
 	buildManifest,
 	checkManifest,
 	registryFiles,
+	REGISTRY_DIRECTORIES,
+	REGISTRY_ROOT_FILES,
 	serialise,
+	UnrecognisedFile,
 } from '../pipeline/lib/manifest.mjs';
 
 const ROOT = path.resolve( path.dirname( fileURLToPath( import.meta.url ) ), '..' );
@@ -127,6 +130,92 @@ test( 'a run\u2019s own artifacts never become registry data', () => {
 		for ( const full of written ) {
 			fs.rmSync( full, { force: true } );
 		}
+	}
+} );
+
+test( 'the allow-list matches what the committed manifest actually holds', () => {
+	// The brief for this change named four directories. The manifest holds
+	// five: detectors/ was missing from it. Confirmed against the file rather
+	// than the description, which is the same rule that the risk bands and the
+	// fact families were both learned under.
+	const manifest = JSON.parse(
+		fs.readFileSync( path.join( ROOT, 'manifest.json' ), 'utf8' )
+	);
+
+	const directories = new Set();
+	const rootFiles = new Set();
+
+	for ( const name of Object.keys( manifest.files ) ) {
+		const slash = name.indexOf( '/' );
+
+		if ( -1 === slash ) {
+			rootFiles.add( name );
+		} else {
+			directories.add( name.slice( 0, slash ) );
+		}
+	}
+
+	assert.deepEqual( [ ...directories ].sort(), [ ...REGISTRY_DIRECTORIES ].sort() );
+	assert.deepEqual( [ ...rootFiles ].sort(), [ ...REGISTRY_ROOT_FILES ].sort() );
+} );
+
+test( 'an unclassifiable file stops the build rather than being guessed at', () => {
+	// The bug this replaces: registryFiles() walked every .json outside an
+	// exclusion list, so anything new in the tree was registry data by default,
+	// and a run artifact was listed as a rule for every site to fetch.
+	//
+	// Including by default ships what the list forgot. Dropping by default
+	// hides a real document from every site. So neither: it refuses.
+	const stray = path.join( ROOT, 'tweaks-backup.json' );
+
+	try {
+		fs.writeFileSync( stray, '{"id":"not-a-real-document"}\n' );
+
+		assert.throws(
+			() => registryFiles( ROOT ),
+			UnrecognisedFile,
+			'an unrecognised .json must stop the build'
+		);
+
+		// And it says which file, because a refusal nobody can act on is just
+		// a broken build.
+		try {
+			registryFiles( ROOT );
+		} catch ( error ) {
+			assert.match( error.message, /tweaks-backup\.json/ );
+		}
+	} finally {
+		fs.rmSync( stray, { force: true } );
+	}
+} );
+
+test( 'a new document in a registry directory is picked up automatically', () => {
+	// The other half of the allow-list. It must not require a person to
+	// enumerate every tweak, or adding one would silently ship a registry
+	// missing it.
+	const added = path.join( ROOT, 'tweaks', 'core.probe_only.json' );
+
+	try {
+		fs.writeFileSync( added, '{"id":"core.probe_only"}\n' );
+
+		assert.ok(
+			registryFiles( ROOT ).includes( 'tweaks/core.probe_only.json' ),
+			'a new tweak must appear without anybody listing it'
+		);
+	} finally {
+		fs.rmSync( added, { force: true } );
+	}
+} );
+
+test( 'a non-JSON file inside a registry directory is reported, not ignored', () => {
+	const stray = path.join( ROOT, 'tweaks', 'NOTES.txt' );
+
+	try {
+		fs.writeFileSync( stray, 'notes\n' );
+
+		assert.throws( () => registryFiles( ROOT ), UnrecognisedFile );
+	} finally {
+		fs.rmSync( stray, { force: true } );
 	}
 } );
 

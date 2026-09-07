@@ -22,7 +22,22 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { registryFiles } from '../pipeline/lib/manifest.mjs';
+import { registryFiles, UnrecognisedFile } from '../pipeline/lib/manifest.mjs';
+
+/**
+ * A file nobody has classified fails this check, legibly.
+ *
+ * registryFiles() refuses to guess. That is the point of it (D-0057), and a
+ * refusal is only useful if the reader is told which file and what to do.
+ */
+process.on( 'uncaughtException', ( error ) => {
+	if ( ! ( error instanceof UnrecognisedFile ) ) {
+		throw error;
+	}
+
+	process.stderr.write( `\n${ error.message }\n\n` );
+	process.exit( 1 );
+} );
 import process from 'node:process';
 import url from 'node:url';
 
