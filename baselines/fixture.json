@@ -1,0 +1,915 @@
+{
+    "_comment": [
+        "What fixture looked like when this baseline was recorded.",
+        "Written by pipeline/observe.mjs. Compared against on later runs."
+    ],
+    "stack": "fixture",
+    "recorded_at": "2026-09-08T11:28:56Z",
+    "versions": {
+        "wordpress": "7.1",
+        "woocommerce": "11.1.0",
+        "elementor": "4.2.4",
+        "elementor-pro": null,
+        "contact-form-7": "6.1.7",
+        "seo-by-rank-math": "1.0.277.2",
+        "litespeed-cache": "7.9.1"
+    },
+    "facts": {
+        "assets.available": false,
+        "assets.pages_sampled": 0,
+        "assets.unavailable_reason": "cURL error 7: Failed to connect to localhost:8888 after 0 ms: Could not connect to server",
+        "cron.disable_wp_cron": false,
+        "cron.events.count": 33,
+        "cron.events.subminute": [
+            {
+                "hook": "debloater_fixture_sync",
+                "interval": 30
+            }
+        ],
+        "cron.orphans.count": 19,
+        "db.autodrafts.count": 0,
+        "db.autoload.bytes": 568924,
+        "db.autoload.top": [
+            {
+                "name": "debloater_fixture_cache",
+                "bytes": 512000
+            },
+            {
+                "name": "_transient_wp_core_block_css_files",
+                "bytes": 23776
+            },
+            {
+                "name": "wp_user_roles",
+                "bytes": 8700
+            },
+            {
+                "name": "rank-math-options-titles",
+                "bytes": 7918
+            },
+            {
+                "name": "cron",
+                "bytes": 5357
+            },
+            {
+                "name": "rank-math-options-general",
+                "bytes": 2097
+            },
+            {
+                "name": "widget_block",
+                "bytes": 890
+            },
+            {
+                "name": "rank-math-options-sitemap",
+                "bytes": 874
+            },
+            {
+                "name": "woocommerce_paypal_settings",
+                "bytes": 860
+            },
+            {
+                "name": "elementor_checklist",
+                "bytes": 525
+            },
+            {
+                "name": "active_plugins",
+                "bytes": 322
+            },
+            {
+                "name": "litespeed.purge.queue",
+                "bytes": 303
+            },
+            {
+                "name": "rank_math_modules",
+                "bytes": 295
+            },
+            {
+                "name": "litespeed.conf.object-global_groups",
+                "bytes": 216
+            },
+            {
+                "name": "sidebars_widgets",
+                "bytes": 198
+            },
+            {
+                "name": "litespeed.conf.media-placeholder_resp_svg",
+                "bytes": 185
+            },
+            {
+                "name": "woocommerce_permalinks",
+                "bytes": 182
+            },
+            {
+                "name": "litespeed.conf.img_optm-webp_attr",
+                "bytes": 178
+            },
+            {
+                "name": "woocommerce_registration_privacy_policy_text",
+                "bytes": 175
+            },
+            {
+                "name": "rank_math_known_post_types",
+                "bytes": 166
+            }
+        ],
+        "db.orphan_postmeta.count": 30,
+        "db.orphan_termmeta.count": 0,
+        "db.orphan_usermeta.count": 0,
+        "db.revisions.count": 48,
+        "db.size_bytes": 3227648,
+        "db.spam_comments.count": 25,
+        "db.transients.count": 61,
+        "db.transients.expired": 41,
+        "db.trash.count": 6,
+        "elementor.custom_code": false,
+        "elementor.documents": 0,
+        "elementor.dynamic_tags": false,
+        "elementor.experiments": [],
+        "elementor.fonts": [],
+        "elementor.packs": [
+            {
+                "source": "unknown",
+                "count": 164
+            }
+        ],
+        "elementor.present": true,
+        "elementor.pro": false,
+        "elementor.shortcodes": false,
+        "elementor.templates": 1,
+        "elementor.version": "4.2.4",
+        "elementor.widgets": [
+            {
+                "name": "accordion",
+                "source": "unknown"
+            },
+            {
+                "name": "alert",
+                "source": "unknown"
+            },
+            {
+                "name": "animated-headline",
+                "source": "unknown"
+            },
+            {
+                "name": "archive-posts",
+                "source": "unknown"
+            },
+            {
+                "name": "audio",
+                "source": "unknown"
+            },
+            {
+                "name": "author-box",
+                "source": "unknown"
+            },
+            {
+                "name": "blockquote",
+                "source": "unknown"
+            },
+            {
+                "name": "breadcrumbs",
+                "source": "unknown"
+            },
+            {
+                "name": "button",
+                "source": "unknown"
+            },
+            {
+                "name": "call-to-action",
+                "source": "unknown"
+            },
+            {
+                "name": "code-highlight",
+                "source": "unknown"
+            },
+            {
+                "name": "common",
+                "source": "unknown"
+            },
+            {
+                "name": "common-base",
+                "source": "unknown"
+            },
+            {
+                "name": "common-optimized",
+                "source": "unknown"
+            },
+            {
+                "name": "contact-buttons",
+                "source": "unknown"
+            },
+            {
+                "name": "countdown",
+                "source": "unknown"
+            },
+            {
+                "name": "counter",
+                "source": "unknown"
+            },
+            {
+                "name": "divider",
+                "source": "unknown"
+            },
+            {
+                "name": "e-button",
+                "source": "unknown"
+            },
+            {
+                "name": "e-component",
+                "source": "unknown"
+            },
+            {
+                "name": "e-divider",
+                "source": "unknown"
+            },
+            {
+                "name": "e-heading",
+                "source": "unknown"
+            },
+            {
+                "name": "e-image",
+                "source": "unknown"
+            },
+            {
+                "name": "e-paragraph",
+                "source": "unknown"
+            },
+            {
+                "name": "e-self-hosted-video",
+                "source": "unknown"
+            },
+            {
+                "name": "e-svg",
+                "source": "unknown"
+            },
+            {
+                "name": "e-youtube",
+                "source": "unknown"
+            },
+            {
+                "name": "facebook-button",
+                "source": "unknown"
+            },
+            {
+                "name": "facebook-comments",
+                "source": "unknown"
+            },
+            {
+                "name": "facebook-embed",
+                "source": "unknown"
+            },
+            {
+                "name": "facebook-page",
+                "source": "unknown"
+            },
+            {
+                "name": "flip-box",
+                "source": "unknown"
+            },
+            {
+                "name": "floating-bars-var-1",
+                "source": "unknown"
+            },
+            {
+                "name": "form",
+                "source": "unknown"
+            },
+            {
+                "name": "gallery",
+                "source": "unknown"
+            },
+            {
+                "name": "google_maps",
+                "source": "unknown"
+            },
+            {
+                "name": "heading",
+                "source": "unknown"
+            },
+            {
+                "name": "hotspot",
+                "source": "unknown"
+            },
+            {
+                "name": "html",
+                "source": "unknown"
+            },
+            {
+                "name": "icon",
+                "source": "unknown"
+            },
+            {
+                "name": "icon-box",
+                "source": "unknown"
+            },
+            {
+                "name": "icon-list",
+                "source": "unknown"
+            },
+            {
+                "name": "image",
+                "source": "unknown"
+            },
+            {
+                "name": "image-box",
+                "source": "unknown"
+            },
+            {
+                "name": "image-carousel",
+                "source": "unknown"
+            },
+            {
+                "name": "image-gallery",
+                "source": "unknown"
+            },
+            {
+                "name": "inner-section",
+                "source": "unknown"
+            },
+            {
+                "name": "link-in-bio",
+                "source": "unknown"
+            },
+            {
+                "name": "link-in-bio-var-2",
+                "source": "unknown"
+            },
+            {
+                "name": "link-in-bio-var-3",
+                "source": "unknown"
+            },
+            {
+                "name": "link-in-bio-var-4",
+                "source": "unknown"
+            },
+            {
+                "name": "link-in-bio-var-5",
+                "source": "unknown"
+            },
+            {
+                "name": "link-in-bio-var-6",
+                "source": "unknown"
+            },
+            {
+                "name": "link-in-bio-var-7",
+                "source": "unknown"
+            },
+            {
+                "name": "login",
+                "source": "unknown"
+            },
+            {
+                "name": "loop-carousel",
+                "source": "unknown"
+            },
+            {
+                "name": "loop-grid",
+                "source": "unknown"
+            },
+            {
+                "name": "lottie",
+                "source": "unknown"
+            },
+            {
+                "name": "media-carousel",
+                "source": "unknown"
+            },
+            {
+                "name": "mega-menu",
+                "source": "unknown"
+            },
+            {
+                "name": "menu-anchor",
+                "source": "unknown"
+            },
+            {
+                "name": "nav-menu",
+                "source": "unknown"
+            },
+            {
+                "name": "nested-accordion",
+                "source": "unknown"
+            },
+            {
+                "name": "nested-carousel",
+                "source": "unknown"
+            },
+            {
+                "name": "nested-tabs",
+                "source": "unknown"
+            },
+            {
+                "name": "off-canvas",
+                "source": "unknown"
+            },
+            {
+                "name": "paypal-button",
+                "source": "unknown"
+            },
+            {
+                "name": "portfolio",
+                "source": "unknown"
+            },
+            {
+                "name": "post-comments",
+                "source": "unknown"
+            },
+            {
+                "name": "post-info",
+                "source": "unknown"
+            },
+            {
+                "name": "post-navigation",
+                "source": "unknown"
+            },
+            {
+                "name": "posts",
+                "source": "unknown"
+            },
+            {
+                "name": "price-list",
+                "source": "unknown"
+            },
+            {
+                "name": "price-table",
+                "source": "unknown"
+            },
+            {
+                "name": "progress",
+                "source": "unknown"
+            },
+            {
+                "name": "progress-tracker",
+                "source": "unknown"
+            },
+            {
+                "name": "rating",
+                "source": "unknown"
+            },
+            {
+                "name": "read-more",
+                "source": "unknown"
+            },
+            {
+                "name": "reviews",
+                "source": "unknown"
+            },
+            {
+                "name": "search",
+                "source": "unknown"
+            },
+            {
+                "name": "share-buttons",
+                "source": "unknown"
+            },
+            {
+                "name": "shortcode",
+                "source": "unknown"
+            },
+            {
+                "name": "sidebar",
+                "source": "unknown"
+            },
+            {
+                "name": "sitemap",
+                "source": "unknown"
+            },
+            {
+                "name": "slides",
+                "source": "unknown"
+            },
+            {
+                "name": "social-icons",
+                "source": "unknown"
+            },
+            {
+                "name": "spacer",
+                "source": "unknown"
+            },
+            {
+                "name": "star-rating",
+                "source": "unknown"
+            },
+            {
+                "name": "stripe-button",
+                "source": "unknown"
+            },
+            {
+                "name": "table-of-contents",
+                "source": "unknown"
+            },
+            {
+                "name": "tabs",
+                "source": "unknown"
+            },
+            {
+                "name": "template",
+                "source": "unknown"
+            },
+            {
+                "name": "testimonial",
+                "source": "unknown"
+            },
+            {
+                "name": "testimonial-carousel",
+                "source": "unknown"
+            },
+            {
+                "name": "text-editor",
+                "source": "unknown"
+            },
+            {
+                "name": "text-path",
+                "source": "unknown"
+            },
+            {
+                "name": "theme-archive-title",
+                "source": "unknown"
+            },
+            {
+                "name": "theme-page-title",
+                "source": "unknown"
+            },
+            {
+                "name": "theme-post-excerpt",
+                "source": "unknown"
+            },
+            {
+                "name": "theme-post-featured-image",
+                "source": "unknown"
+            },
+            {
+                "name": "theme-post-title",
+                "source": "unknown"
+            },
+            {
+                "name": "theme-site-logo",
+                "source": "unknown"
+            },
+            {
+                "name": "theme-site-title",
+                "source": "unknown"
+            },
+            {
+                "name": "toggle",
+                "source": "unknown"
+            },
+            {
+                "name": "video",
+                "source": "unknown"
+            },
+            {
+                "name": "video-playlist",
+                "source": "unknown"
+            },
+            {
+                "name": "wc-add-to-cart",
+                "source": "unknown"
+            },
+            {
+                "name": "wc-archive-products",
+                "source": "unknown"
+            },
+            {
+                "name": "wc-categories",
+                "source": "unknown"
+            },
+            {
+                "name": "wc-elements",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-archive-description",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-breadcrumb",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-cart",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-checkout-page",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-menu-cart",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-my-account",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-notices",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-product-add-to-cart",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-product-additional-information",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-product-data-tabs",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-product-images",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-product-meta",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-product-price",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-product-rating",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-product-related",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-product-short-description",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-product-stock",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-product-title",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-product-upsell",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-products",
+                "source": "unknown"
+            },
+            {
+                "name": "woocommerce-purchase-summary",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-archives",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-block",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-calendar",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-categories",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-custom_html",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-media_audio",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-media_gallery",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-media_image",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-media_video",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-meta",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-nav_menu",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-pages",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-recent-comments",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-recent-posts",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-rss",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-search",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-tag_cloud",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-text",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-wc_brands_brand_description",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-wc_brands_brand_thumbnails",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-woocommerce_brand_nav",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-woocommerce_layered_nav",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-woocommerce_layered_nav_filters",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-woocommerce_price_filter",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-woocommerce_product_categories",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-woocommerce_product_search",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-woocommerce_product_tag_cloud",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-woocommerce_products",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-woocommerce_rating_filter",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-woocommerce_recent_reviews",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-woocommerce_recently_viewed_products",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-woocommerce_top_rated_products",
+                "source": "unknown"
+            },
+            {
+                "name": "wp-widget-woocommerce_widget_cart",
+                "source": "unknown"
+            }
+        ],
+        "elementor.widgets_available": 164,
+        "elementor.widgets_in_use": [],
+        "env.cache_plugin": "none",
+        "env.host_vendor": "unknown",
+        "env.is_multisite": false,
+        "env.php_version": "8.3.33",
+        "env.wp_version": "7.1",
+        "plugins.active": [
+            "contact-form-7.latest-stable/wp-contact-form-7.php",
+            "debloater/debloater.php",
+            "elementor.latest-stable/elementor.php",
+            "litespeed-cache.latest-stable/litespeed-cache.php",
+            "seo-by-rank-math.latest-stable/rank-math.php",
+            "woocommerce.latest-stable/woocommerce.php"
+        ],
+        "plugins.categories": [],
+        "plugins.detected": {
+            "contact-form-7": true,
+            "elementor": true,
+            "elementor-pro": false,
+            "litespeed-cache": true,
+            "rank-math": true,
+            "woocommerce": true,
+            "wordfence": false,
+            "wp-rocket": false,
+            "wp-super-cache": false,
+            "yoast": false
+        },
+        "plugins.host_optimizers": [
+            {
+                "id": "litespeed-cache",
+                "name": "LiteSpeed Cache",
+                "finding": "wp.emojis.loaded"
+            }
+        ],
+        "plugins.inactive": [
+            "hello.php"
+        ],
+        "plugins.meta": {
+            "contact-form-7.latest-stable/wp-contact-form-7.php": {
+                "name": "Contact Form 7",
+                "version": "6.1.7",
+                "file_mtime": 1788866862
+            },
+            "debloater/debloater.php": {
+                "name": "Debloater",
+                "version": "0.2.0",
+                "file_mtime": 1788866807
+            },
+            "elementor.latest-stable/elementor.php": {
+                "name": "Elementor",
+                "version": "4.2.4",
+                "file_mtime": 1788866865
+            },
+            "hello.php": {
+                "name": "Hello Dolly",
+                "version": "1.7.2",
+                "file_mtime": 1788866870
+            },
+            "litespeed-cache.latest-stable/litespeed-cache.php": {
+                "name": "LiteSpeed Cache",
+                "version": "7.9.1",
+                "file_mtime": 1788866862
+            },
+            "seo-by-rank-math.latest-stable/rank-math.php": {
+                "name": "Rank Math SEO",
+                "version": "1.0.278",
+                "file_mtime": 1788866863
+            },
+            "woocommerce.latest-stable/woocommerce.php": {
+                "name": "WooCommerce",
+                "version": "11.1.0",
+                "file_mtime": 1788866869
+            }
+        },
+        "plugins.update_source": "file_mtime",
+        "scan.elapsed_ms": 23,
+        "scan.failed": [],
+        "scan.over_budget": [],
+        "scan.scanner_ms": {
+            "AdminScanner": 0,
+            "AssetScanner": 3,
+            "AutoloadScanner": 1,
+            "CoreFeatureScanner": 0,
+            "CronScanner": 0,
+            "DatabaseScanner": 1,
+            "ElementorScanner": 15,
+            "EnvironmentScanner": 0,
+            "PluginScanner": 1,
+            "ThemeScanner": 0,
+            "UserScanner": 1,
+            "WooCommerceScanner": 1,
+            "WordPressScanner": 0
+        },
+        "theme.active": "twentytwentyfive",
+        "theme.parent": null,
+        "users.admin_count": 4,
+        "users.recent_editors_7d": 2,
+        "woo.admin_analytics": true,
+        "woo.marketplace_suggestions": true,
+        "woo.pages_sampled": 0,
+        "woo.present": true,
+        "woo.version": "11.1.0",
+        "wp.dashicons_frontend": true,
+        "wp.debug": true,
+        "wp.embeds_enabled": true,
+        "wp.emojis_enabled": true,
+        "wp.file_editor_enabled": true,
+        "wp.generator_tag": true,
+        "wp.heartbeat_interval": 15,
+        "wp.jquery_migrate": true,
+        "wp.revisions_limit": -1,
+        "wp.rsd_link": true,
+        "wp.rss_enabled": true,
+        "wp.self_pingbacks": true,
+        "wp.shortlink": true,
+        "wp.xmlrpc_enabled": true
+    }
+}
