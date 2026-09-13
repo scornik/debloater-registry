@@ -2,7 +2,7 @@
     "schema_version": 1,
     "product": "debloater",
     "tag": "v0.1.0",
-    "generated_at": "2026-09-03T15:45:25Z",
+    "generated_at": "2026-09-13T07:48:57Z",
     "files": {
         "admin-notices.json": "168502077be40257f7e2271bf526466765bb728bbe3193e23119a62cc1fddfa7",
         "compatibility/contact-form-7.json": "206dfc65065af55c036aecdd0dce6df571504c4e1c187c627dba7d6e1eb18de6",
@@ -35,7 +35,6 @@
         "schemas/plugin-categories.schema.json": "0829e487db7637e7b36a33e32b23f63aada5eed41698a457390ed1ddcbd20370",
         "schemas/profile.schema.json": "5c21aba17d2d0b27d303376e6016807b628c88755d9ba103410b7b462bc2a738",
         "schemas/tweak.schema.json": "43af4db71c1e8fb1505e48d1c1d6e17a59639a1bc550359928fd30df4fdeefb0",
-        "tweaks/admin.hide_update_nags_non_admins.json": "79a475142e57edc5d50bb9733ba715c661d4311bc276f2308a7ebc0d9ca170d2",
         "tweaks/admin.remove_dashboard_widgets.json": "fe47b44765d472877a2590bdee0dfa6af9457f542f68669ef1f1a70715343837",
         "tweaks/admin.remove_welcome_panel.json": "deb3325dee4c46ddea72a1810e9ab67c484c74bb3e3ec44f51dfe3c296db9e38",
         "tweaks/admin.remove_wp_news_widget.json": "0954422ebca2e9e7d8ba76f6fb0b9f47b1751c9724aae7bf78edeff4c77d4f0c",
