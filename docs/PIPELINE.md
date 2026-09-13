@@ -7,6 +7,15 @@ proposing registry changes — with the evidence attached.
 It can merge a change that is strictly more cautious than what is there now. It
 cannot sign a release, and nothing it does reaches a site until somebody does.
 
+**What this pipeline feeds is plugin releases.** Since Debloater 0.4.0 the free
+plugin fetches nothing: wordpress.org does not allow a plugin to pull data from
+a third-party host, and this repository on GitHub is one. A signed registry
+release reaches a site by being vendored into the next plugin release and
+arriving through WordPress's own update system. The live fetch — signature
+verification against the pinned key, fail-closed, opt-in — moved to Debloater
+Pro, which is not distributed through wordpress.org. Recorded in the plugin's
+`docs/DECISIONS.md` D-0073.
+
 ---
 
 ## The one rule
@@ -195,13 +204,15 @@ holding the offline key. See `DECISIONS.md` D-0067.
 Not because each stage is careful, though they are. Because of where the
 private key is.
 
-`main` carries content; a tag carries a signature. Sites fetch
-`<base>/<tag>/<path>` — never `main` — and a tag cannot exist without a valid
-signature, which cannot be made without a key that is on no runner.
+`main` carries content; a tag carries a signature. Nothing reads `main`: a
+plugin release vendors a signed tag, and Debloater Pro's opt-in check fetches
+`<base>/<tag>/<path>`. A tag cannot exist without a valid signature, which
+cannot be made without a key that is on no runner.
 
 So the worst outcome of every check here failing at once is that this
 repository's `main` branch is wrong. No site has been offered it. Somebody with
-the key would still have to look at a diff and decide to sign it.
+the key would still have to look at a diff and decide to sign it, and for a
+free site somebody would then have to cut a plugin release containing it.
 
 `state/released.json` names the last signed tag, so anyone reading the
 repository can tell what is released from what is merged and waiting.

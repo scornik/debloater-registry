@@ -24,12 +24,13 @@ This repository is **data**. There is no code here that runs on a site.
 ## How the plugin uses it
 
 **The plugin ships its own copy.** Every release vendors a snapshot of this
-repository, and that snapshot is what a site runs. Nothing here is fetched
-during normal operation, and a site with no outbound access is not missing
-anything.
+repository, and that snapshot is what a site runs. The free plugin fetches
+nothing from here — not optionally, not at all — since 0.4.0, on wordpress.org's
+instruction. A change here reaches a free site in the next plugin release.
 
-Fetching a newer registry is optional, off by default, and reached only by
-running a WP-CLI command. Downloaded registries are refused unless signed.
+Debloater Pro, which is not on wordpress.org, can check for a newer signed
+release. It is off by default, and a release that is not signed with the pinned
+key is refused.
 
 Releases are signed. `manifest.sig` is a detached Ed25519 signature over
 `manifest.json`, made with a private key held offline; the public half is
@@ -55,10 +56,11 @@ release, and between releases its `manifest.json` is accurate but unsigned.
 node -p "require('./state/released.json').tag"
 ```
 
-**Sites are unaffected by any of this.** The plugin fetches
-`<base>/<tag>/<path>` — a tag, never `main` — and a tag cannot be pushed without
-a valid signature, which the release gate checks when it arrives. A site pointed
-at `main` would be refused rather than served something unverified.
+**Sites are unaffected by any of this.** Nothing reads `main`. A plugin release
+vendors a tag, and Pro's check fetches `<base>/<tag>/<path>` — a tag, never
+`main`. A tag cannot be pushed without a valid signature, which the release gate
+checks when it arrives, so a site pointed at `main` would be refused rather than
+served something unverified.
 
 The reasoning, the fail-closed property and what it costs are in
 `docs/DECISIONS.md` D-0067.
