@@ -11,10 +11,9 @@ cannot sign a release, and nothing it does reaches a site until somebody does.
 plugin fetches nothing: wordpress.org does not allow a plugin to pull data from
 a third-party host, and this repository on GitHub is one. A signed registry
 release reaches a site by being vendored into the next plugin release and
-arriving through WordPress's own update system. The live fetch — signature
-verification against the pinned key, fail-closed, opt-in — moved to Debloater
-Pro, which is not distributed through wordpress.org. Recorded in the plugin's
-`docs/DECISIONS.md` D-0073.
+arriving through WordPress's own update system. The live fetch was going to
+move to Debloater Pro and was withdrawn instead; no plugin fetches a registry.
+Recorded in the plugin's `docs/DECISIONS.md` D-0073 and Pro's D-0078.
 
 ---
 
@@ -205,14 +204,14 @@ Not because each stage is careful, though they are. Because of where the
 private key is.
 
 `main` carries content; a tag carries a signature. Nothing reads `main`: a
-plugin release vendors a signed tag, and Debloater Pro's opt-in check fetches
-`<base>/<tag>/<path>`. A tag cannot exist without a valid signature, which
-cannot be made without a key that is on no runner.
+plugin release vendors a signed tag, and nothing fetches from this repository at
+all. A tag cannot exist without a valid signature, which cannot be made without
+a key that is on no runner.
 
 So the worst outcome of every check here failing at once is that this
 repository's `main` branch is wrong. No site has been offered it. Somebody with
-the key would still have to look at a diff and decide to sign it, and for a
-free site somebody would then have to cut a plugin release containing it.
+the key would still have to look at a diff and decide to sign it, and then
+somebody would have to cut a plugin release containing it.
 
 `state/released.json` names the last signed tag, so anyone reading the
 repository can tell what is released from what is merged and waiting.
